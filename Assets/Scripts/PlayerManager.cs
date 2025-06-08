@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.UIElements;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -27,6 +28,10 @@ public class PlayerManager : MonoBehaviour
             {
                 gridPlacement.placeTile(PlacingItem);
             }
+        }
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            gridPlacement.RotateTile();
         }
     }
 
