@@ -17,9 +17,6 @@ public class UIHandler : MonoBehaviour
     public Sprite[] sprites;
     public GameObject[] prefabs;
     
-    // Additional Required Item Data
-    
-    
     // Methods Handling
 
     void Start()

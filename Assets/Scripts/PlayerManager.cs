@@ -44,6 +44,11 @@ public class PlayerManager : MonoBehaviour
             {
                 gridPlacement.PlaceObject();
             }
+
+            if (Keyboard.current.rKey.wasPressedThisFrame)
+            {
+                gridPlacement.rotatePreview();
+            }
         }
     }
 

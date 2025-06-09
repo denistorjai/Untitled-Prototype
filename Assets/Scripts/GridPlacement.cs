@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Unity.PlasticSCM.Editor.WebApi;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Object = System.Object;
 using Random = System.Random;
 
 public class GridPlacement : MonoBehaviour
@@ -19,6 +21,7 @@ public class GridPlacement : MonoBehaviour
     // Ghost Preview Methods
 
     private ObjectClass PreviewGhost;
+    private SpriteRenderer PreviewGhostRenderer;
     
     public void setPreview(ItemClass item) {
         switch (item.ItemType)
@@ -30,6 +33,8 @@ public class GridPlacement : MonoBehaviour
                 ConveyerObject.ObjectID = ReturnID();
                 ConveyerObject.Object.name = "PreviewObject";
                 PreviewGhost = ConveyerObject;
+                PreviewGhostRenderer = ConveyerObject.Object.GetComponent<SpriteRenderer>();
+                SyncAnimation(ConveyerObject);
                 return;
         }
     }
@@ -37,6 +42,17 @@ public class GridPlacement : MonoBehaviour
     public void removePreview() {
         PreviewGhost.DeleteObject();
         PreviewGhost = null;
+    }
+
+    public void rotatePreview()
+    {
+        PreviewGhost.Object.transform.Rotate(0,0,90f);
+        PreviewGhostRenderer.flipY = false;
+        float zRot = PreviewGhost.Object.transform.eulerAngles.z;
+        if (Mathf.Approximately(zRot, 180f))
+        {
+            PreviewGhostRenderer.flipY = true;
+        }
     }
     
     void Update() 
@@ -50,6 +66,8 @@ public class GridPlacement : MonoBehaviour
     }
     
     // Placing Methods
+    
+    // ReSharper disable Unity.PerformanceAnalysis
     public void PlaceObject()
     {
         foreach (var Object in Objects)
@@ -68,6 +86,7 @@ public class GridPlacement : MonoBehaviour
                 ConveyerObject.Object.name = PreviewGhost.ObjectItem.ItemName;
                 Objects.Add(ConveyerObject.ObjectID, ConveyerObject);
                 ConveyerObject.ActiveObject = true;
+                SyncAnimation(ConveyerObject);
                 return;
         }
     }
@@ -87,6 +106,15 @@ public class GridPlacement : MonoBehaviour
     Vector3 GridClamp(Vector3 WorldPos)
     {
         return new Vector3( Mathf.Floor(WorldPos.x / gridSize) * gridSize, Mathf.Floor(WorldPos.y / gridSize) * gridSize, WorldPos.z );
+    }
+
+    public void SyncAnimation(ObjectClass Object)
+    {
+        Animator animator = Object.Object.GetComponent<Animator>();
+        float globalTime = Time.time;
+        float AnimationLength = animator.GetCurrentAnimatorStateInfo(0).length;
+        animator.Play(0,0, (globalTime % AnimationLength)/AnimationLength);
+        animator.Update(0f);
     }
     
 }
