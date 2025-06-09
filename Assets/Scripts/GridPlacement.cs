@@ -6,101 +6,87 @@ using Random = System.Random;
 
 public class GridPlacement : MonoBehaviour
 {
+    
+    // Data
+    
+    Dictionary<string, ObjectClass> Objects = new Dictionary<string, ObjectClass>();
+    
     // Variables
+    
     public float gridSize;
     public Camera cam;
-
-    private GameObject GhostObject;
-    private Boolean DisplayingGhost = false;
-    private int GhostRotation = 1;
-
-    public Sprite[] sprites;
     
-    // List of Current Tiles
-    Dictionary<string, ObjectClass> TilePositions = new Dictionary<string, ObjectClass>();
+    // Ghost Preview Methods
 
-    // Update is called once per frame
-    void Update() {
-        // Read Cursor Position, Add Mouse Offset, Set Ghost Object & Clamp to Grid
-        if (DisplayingGhost != false) {
-            var ObjectWorldPos = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-            GhostObject.transform.position = ClamptoGrid(gridSize, ObjectWorldPos);
-        }
-    }
-
-    // Return Grid, / gridsize to turn (ex. 55,56,57) to similar numbers, and then * by gridsize to return them to place.
-    Vector2 ClamptoGrid(float gridsize, Vector2 currentpos) { 
-        return new Vector3(
-            Mathf.Floor(currentpos.x / gridsize) * gridsize, 
-            Mathf.Floor(currentpos.y / gridsize) * gridsize, 
-            0);
-    }
-
-    string ReturnPrefabID()
-    {
-        string Characters = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        string GeneratedID = "";
-        var x = 0;
-        while (x < 9) {
-            GeneratedID += Characters[UnityEngine.Random.Range(0, Characters.Length)];
-            x += 1;
-        }
-        return GeneratedID;
-    }
+    private ObjectClass PreviewGhost;
     
-    // Display Placing Tile
-    public void setPreview(GameObject PlacePreview) {
-        GhostObject = Instantiate(PlacePreview, Vector3.zero, Quaternion.identity);
-        GhostObject.name = PlacePreview.name;
-        DisplayingGhost = true;
-    }
-
-    // Remove Display
-    public void removePreview() {
-        Destroy(GhostObject);
-        GhostObject = null;
-        DisplayingGhost = false;
-    }
-
-    public void RotateTile()
-    {
-        // Rotate Ghost Object
-        if (GhostObject)
+    public void setPreview(ItemClass item) {
+        switch (item.ItemType)
         {
-            // Get Total Number of Rotations
-            
-            
+            case "Conveyer":
+                ConveyerClass ConveyerObject = new ConveyerClass();
+                ConveyerObject.Object = Instantiate(item.ObjectPrefab);
+                ConveyerObject.ObjectItem = item;
+                ConveyerObject.ObjectID = ReturnID();
+                ConveyerObject.Object.name = "PreviewObject";
+                PreviewGhost = ConveyerObject;
+                return;
         }
     }
     
-    // Place Tile
-    public void placeTile(GameObject Prefab) {   
-        
-        // Check if Tile doesn't exist in Position
-        foreach (var x in TilePositions) {
-            if (GhostObject.transform.position == x.Value.ObjectPosition) {
+    public void removePreview() {
+        PreviewGhost.DeleteObject();
+        PreviewGhost = null;
+    }
+    
+    void Update() 
+    {
+        if (PreviewGhost != null)
+        {
+            var MousePos = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+            MousePos.z = 0;
+            PreviewGhost.Object.transform.position = GridClamp(MousePos);
+        }
+    }
+    
+    // Placing Methods
+    public void PlaceObject()
+    {
+        foreach (var Object in Objects)
+        {
+            if (Object.Value.Object.transform.position == PreviewGhost.Object.transform.position)
+            {
                 return;
             }
         }
-        
-        // Create Tile Class and Add it
-        ObjectClass Tile = new ObjectClass();
-        
-        // Set Information
-        Tile.ObjectPosition = GhostObject.transform.position;
-        Tile.ObjectID = ReturnPrefabID();
-        
-        // Check for rotations
-        foreach (Transform Child in GhostObject.transform)
+        switch (PreviewGhost.ObjectItem.ItemName)
         {
-            Tile.RotationObjects.Add(Child.gameObject);
+            case "Conveyer":
+                ConveyerClass ConveyerObject = new ConveyerClass();
+                ConveyerObject.Object = Instantiate(PreviewGhost.Object, PreviewGhost.Object.transform.position, PreviewGhost.Object.transform.rotation);
+                ConveyerObject.ObjectID = ReturnID();
+                ConveyerObject.Object.name = PreviewGhost.ObjectItem.ItemName;
+                Objects.Add(ConveyerObject.ObjectID, ConveyerObject);
+                ConveyerObject.ActiveObject = true;
+                return;
         }
-        
-        // Create & Add
-        Tile.Object = Instantiate(Prefab, GhostObject.transform.position, GhostObject.transform.rotation);
-        Tile.Object.name = GhostObject.name;
-        TilePositions.Add(Tile.ObjectID, Tile);
-      
+    }
+    
+    // Use Methods
+    
+    string ReturnID()
+    {
+        string Characters = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        var ID = "";
+        for (int i = 0; i < 9; i++) {
+            ID += Characters[UnityEngine.Random.Range(0, Characters.Length)];
+        }
+        return ID;
+    }
+
+    Vector3 GridClamp(Vector3 WorldPos)
+    {
+        return new Vector3( Mathf.Floor(WorldPos.x / gridSize) * gridSize, Mathf.Floor(WorldPos.y / gridSize) * gridSize, WorldPos.z );
     }
     
 }

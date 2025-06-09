@@ -8,10 +8,26 @@ public class PlayerManager : MonoBehaviour
 {
     
     // Variables
+    
     public GridPlacement gridPlacement;
     
-    private Boolean CurrentlyPlacing = false;
-    private GameObject PlacingItem;
+    // Placing
+
+    private bool CurrentlyPlacing = false;
+    
+    public void ItemPlacingPreview(ItemClass item)
+    {
+        if (CurrentlyPlacing)
+        {
+            gridPlacement.removePreview();
+            gridPlacement.setPreview(item);
+        }
+        else
+        {
+            gridPlacement.setPreview(item);
+        }
+        CurrentlyPlacing = true;
+    }
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -22,30 +38,16 @@ public class PlayerManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Mouse.current.leftButton.isPressed)
+        if (CurrentlyPlacing)
         {
-            if (CurrentlyPlacing)
+            if (Mouse.current.leftButton.isPressed)
             {
-                gridPlacement.placeTile(PlacingItem);
+                gridPlacement.PlaceObject();
             }
         }
-        if (Keyboard.current.rKey.wasPressedThisFrame)
-        {
-            gridPlacement.RotateTile();
-        }
     }
 
-    public void StartPlacing(GameObject Tile) {
-        if (CurrentlyPlacing == true) {
-            StopPlacing();
-        } 
-        PlacingItem = Tile;
-        gridPlacement.setPreview(Tile);
-        CurrentlyPlacing = true;
-    }
+    // Methods
 
-    void StopPlacing() {
-        gridPlacement.removePreview();
-    }
     
 }
