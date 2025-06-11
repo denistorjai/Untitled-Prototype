@@ -12,6 +12,8 @@ public class ObjectClass
     public string ObjectID;
     public GameObject Object;
     public bool ActiveObject = false;
+    public Vector2 InputDirection;
+    public Vector2 OutputDirection;
     
     // Methods
     

@@ -12,6 +12,7 @@ public class GridPlacement : MonoBehaviour
     // Data
     
     Dictionary<string, ObjectClass> Objects = new Dictionary<string, ObjectClass>();
+    Dictionary<string, ConveyerClass> Conveyers = new Dictionary<string, ConveyerClass>();
     
     // Variables
     
@@ -53,6 +54,27 @@ public class GridPlacement : MonoBehaviour
         {
             PreviewGhostRenderer.flipY = true;
         }
+        switch (PreviewGhost.ObjectItem.ItemType)
+        {
+            case "Conveyer":
+                if (Mathf.Approximately(zRot, 180f))
+                {
+                    PreviewGhost.OutputDirection = Vector2.left;
+                }
+                if (Mathf.Approximately(zRot, 90f))
+                {
+                    PreviewGhost.OutputDirection = Vector2.up;
+                }
+                if (Mathf.Approximately(zRot, 0f))
+                {
+                    PreviewGhost.OutputDirection = Vector2.right;
+                }
+                if (Mathf.Approximately(zRot, -90f))
+                {
+                    PreviewGhost.OutputDirection = Vector2.down;
+                }
+                return;
+        }
     }
     
     void Update() 
@@ -85,6 +107,7 @@ public class GridPlacement : MonoBehaviour
                 ConveyerObject.ObjectID = ReturnID();
                 ConveyerObject.Object.name = PreviewGhost.ObjectItem.ItemName;
                 Objects.Add(ConveyerObject.ObjectID, ConveyerObject);
+                Conveyers.Add(ConveyerObject.ObjectID, ConveyerObject);
                 ConveyerObject.ActiveObject = true;
                 SyncAnimation(ConveyerObject);
                 return;
