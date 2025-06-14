@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Unity.PlasticSCM.Editor.WebApi;
+using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Object = System.Object;
@@ -18,6 +20,13 @@ public class GridPlacement : MonoBehaviour
     
     public float gridSize;
     public Camera cam;
+    public AnimatorController ConveyerLink1Controller;
+    public AnimatorController ConveyerLink2Controller;
+
+    private Vector2Int[] directions =
+    {
+        Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
+    };
     
     // Ghost Preview Methods
 
@@ -69,7 +78,7 @@ public class GridPlacement : MonoBehaviour
                 {
                     PreviewGhost.OutputDirection = Vector2.right;
                 }
-                if (Mathf.Approximately(zRot, -90f))
+                if (Mathf.Approximately(zRot, 270))
                 {
                     PreviewGhost.OutputDirection = Vector2.down;
                 }
@@ -107,7 +116,14 @@ public class GridPlacement : MonoBehaviour
                 ConveyerObject.ObjectID = ReturnID();
                 ConveyerObject.Object.name = PreviewGhost.ObjectItem.ItemName;
                 Objects.Add(ConveyerObject.ObjectID, ConveyerObject);
+                Vector2Int gridPos = new Vector2Int(
+                    Mathf.RoundToInt(ConveyerObject.Object.transform.position.x),
+                    Mathf.RoundToInt(ConveyerObject.Object.transform.position.y)
+                );
+                ConveyerObject.Gridpos = gridPos;
+                ConveyerObject.OutputDirection = PreviewGhost.OutputDirection;
                 Conveyers.Add(ConveyerObject.ObjectID, ConveyerObject);
+                CheckConveyer(ConveyerObject);
                 ConveyerObject.ActiveObject = true;
                 SyncAnimation(ConveyerObject);
                 return;
@@ -138,6 +154,71 @@ public class GridPlacement : MonoBehaviour
         float AnimationLength = animator.GetCurrentAnimatorStateInfo(0).length;
         animator.Play(0,0, (globalTime % AnimationLength)/AnimationLength);
         animator.Update(0f);
+    }
+
+    public void CheckConveyer(ConveyerClass Conveyer)
+    {
+        foreach (var dir in directions)
+        {
+            Vector2Int neighborpos = Conveyer.Gridpos + dir;
+            foreach (var item in Conveyers.Values)
+            {
+                if (item.Gridpos == neighborpos)
+                {
+                    if (dir == Conveyer.OutputDirection)
+                    {
+                        if (item.OutputDirection != -Conveyer.OutputDirection && Conveyer.OutputDirection != item.OutputDirection)
+                        {
+                            RotateConveyerCorrectly(Conveyer, item, dir);
+                        }
+                    } else if (item.OutputDirection == -dir)
+                    {
+                        if (Conveyer.OutputDirection != item.OutputDirection)
+                        {
+                            RotateConveyerCorrectly(Conveyer, Conveyer, dir);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public enum ConveyerDirection { Up, Down, Left, Right }
+    
+    public ConveyerDirection getDirection(Vector2 Dir)
+    {   
+        if (Dir == Vector2.left) return ConveyerDirection.Left;
+        if (Dir == Vector2.right) return ConveyerDirection.Right;
+        if (Dir == Vector2.up) return ConveyerDirection.Up;
+        if (Dir == Vector2.down) return ConveyerDirection.Down;
+        throw new ArgumentException("Unknown direction: " + Dir);
+    }
+    
+    public void RotateConveyerCorrectly(ConveyerClass Conveyer, ConveyerClass ConveyerToRotate, Vector2Int Direction)
+    {
+        ConveyerToRotate.Object.transform.rotation = Quaternion.identity;
+        var SpriteRenderer = Conveyer.Object.GetComponent<SpriteRenderer>();
+        SpriteRenderer.flipY = false;
+        var animator = ConveyerToRotate.Object.GetComponent<Animator>();
+        // Rotation Directions
+        switch (getDirection(ConveyerToRotate.OutputDirection))
+        {
+            case ConveyerDirection.Up:
+                animator.runtimeAnimatorController = ConveyerLink1Controller;
+                ConveyerToRotate.Object.transform.Rotate(0, 0,270);
+                return;
+            case ConveyerDirection.Down:
+                animator.runtimeAnimatorController = ConveyerLink2Controller;
+                return;
+            case ConveyerDirection.Left:
+                animator.runtimeAnimatorController = ConveyerLink1Controller;
+                return;
+            case ConveyerDirection.Right:
+                animator.runtimeAnimatorController = ConveyerLink1Controller;
+                return;
+            default:
+                return;
+        }
     }
     
 }

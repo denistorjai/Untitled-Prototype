@@ -14,6 +14,7 @@ public class ObjectClass
     public bool ActiveObject = false;
     public Vector2 InputDirection;
     public Vector2 OutputDirection;
+    public Vector2Int Gridpos;
     
     // Methods
     
