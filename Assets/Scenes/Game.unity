@@ -234,6 +234,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridSize: 1
   cam: {fileID: 1325963723}
+  ConveyerLink1Controller: {fileID: 8726056324042505714, guid: 6ea8258ddea51ef47a8884873a19aca8, type: 3}
+  ConveyerLink2Controller: {fileID: 1387686587042130378, guid: 79dc8ea10c67ab34cb104b2702ff9d1f, type: 3}
 --- !u!4 &859704979
 Transform:
   m_ObjectHideFlags: 0
@@ -624,7 +626,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 7.015625
+  orthographic size: 6.828125
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2

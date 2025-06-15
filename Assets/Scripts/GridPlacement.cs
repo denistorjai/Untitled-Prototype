@@ -58,6 +58,7 @@ public class GridPlacement : MonoBehaviour
     {
         PreviewGhost.Object.transform.Rotate(0,0,90f);
         PreviewGhostRenderer.flipY = false;
+        PreviewGhostRenderer.flipX = false;
         float zRot = PreviewGhost.Object.transform.eulerAngles.z;
         if (Mathf.Approximately(zRot, 180f))
         {
@@ -158,21 +159,28 @@ public class GridPlacement : MonoBehaviour
 
     public void CheckConveyer(ConveyerClass Conveyer)
     {
+        print(Conveyer.OutputDirection);
         foreach (var dir in directions)
         {
             Vector2Int neighborpos = Conveyer.Gridpos + dir;
             foreach (var item in Conveyers.Values)
             {
+                print(item.OutputDirection);
                 if (item.Gridpos == neighborpos)
                 {
+                    print("FOUND NIEGHBOR");
                     if (dir == Conveyer.OutputDirection)
                     {
+                        print("connect1");
                         if (item.OutputDirection != -Conveyer.OutputDirection && Conveyer.OutputDirection != item.OutputDirection)
                         {
                             RotateConveyerCorrectly(Conveyer, item, dir);
                         }
                     } else if (item.OutputDirection == -dir)
                     {
+                        print("connect2");
+                        print(Conveyer.OutputDirection);
+                        print(item.OutputDirection);
                         if (Conveyer.OutputDirection != item.OutputDirection)
                         {
                             RotateConveyerCorrectly(Conveyer, Conveyer, dir);
@@ -199,6 +207,7 @@ public class GridPlacement : MonoBehaviour
         ConveyerToRotate.Object.transform.rotation = Quaternion.identity;
         var SpriteRenderer = Conveyer.Object.GetComponent<SpriteRenderer>();
         SpriteRenderer.flipY = false;
+        SpriteRenderer.flipX = false;
         var animator = ConveyerToRotate.Object.GetComponent<Animator>();
         // Rotation Directions
         switch (getDirection(ConveyerToRotate.OutputDirection))
@@ -215,6 +224,7 @@ public class GridPlacement : MonoBehaviour
                 return;
             case ConveyerDirection.Right:
                 animator.runtimeAnimatorController = ConveyerLink1Controller;
+                ConveyerToRotate.Object.transform.Rotate(0, 0,180);
                 return;
             default:
                 return;
