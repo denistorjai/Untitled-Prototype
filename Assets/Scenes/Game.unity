@@ -236,6 +236,7 @@ MonoBehaviour:
   cam: {fileID: 1325963723}
   ConveyerLink1Controller: {fileID: 8726056324042505714, guid: 6ea8258ddea51ef47a8884873a19aca8, type: 3}
   ConveyerLink2Controller: {fileID: 1387686587042130378, guid: 79dc8ea10c67ab34cb104b2702ff9d1f, type: 3}
+  ConveyerLink3Controller: {fileID: 7275219345059673657, guid: b284b6ccf2106354c8e5ded4d429d557, type: 3}
 --- !u!4 &859704979
 Transform:
   m_ObjectHideFlags: 0

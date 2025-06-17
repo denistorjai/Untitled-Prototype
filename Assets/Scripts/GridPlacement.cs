@@ -22,6 +22,7 @@ public class GridPlacement : MonoBehaviour
     public Camera cam;
     public AnimatorController ConveyerLink1Controller;
     public AnimatorController ConveyerLink2Controller;
+    public AnimatorController ConveyerLink3Controller;
 
     private Vector2Int[] directions =
     {
@@ -165,22 +166,16 @@ public class GridPlacement : MonoBehaviour
             Vector2Int neighborpos = Conveyer.Gridpos + dir;
             foreach (var item in Conveyers.Values)
             {
-                print(item.OutputDirection);
                 if (item.Gridpos == neighborpos)
                 {
-                    print("FOUND NIEGHBOR");
                     if (dir == Conveyer.OutputDirection)
                     {
-                        print("connect1");
                         if (item.OutputDirection != -Conveyer.OutputDirection && Conveyer.OutputDirection != item.OutputDirection)
                         {
                             RotateConveyerCorrectly(Conveyer, item, dir);
                         }
                     } else if (item.OutputDirection == -dir)
                     {
-                        print("connect2");
-                        print(Conveyer.OutputDirection);
-                        print(item.OutputDirection);
                         if (Conveyer.OutputDirection != item.OutputDirection)
                         {
                             RotateConveyerCorrectly(Conveyer, Conveyer, dir);
@@ -213,8 +208,7 @@ public class GridPlacement : MonoBehaviour
         switch (getDirection(ConveyerToRotate.OutputDirection))
         {
             case ConveyerDirection.Up:
-                animator.runtimeAnimatorController = ConveyerLink1Controller;
-                ConveyerToRotate.Object.transform.Rotate(0, 0,270);
+                animator.runtimeAnimatorController = ConveyerLink3Controller;
                 return;
             case ConveyerDirection.Down:
                 animator.runtimeAnimatorController = ConveyerLink2Controller;
@@ -223,8 +217,8 @@ public class GridPlacement : MonoBehaviour
                 animator.runtimeAnimatorController = ConveyerLink1Controller;
                 return;
             case ConveyerDirection.Right:
-                animator.runtimeAnimatorController = ConveyerLink1Controller;
-                ConveyerToRotate.Object.transform.Rotate(0, 0,180);
+                animator.runtimeAnimatorController = ConveyerLink3Controller;
+                ConveyerToRotate.Object.transform.Rotate(0, 0,270);
                 return;
             default:
                 return;
