@@ -23,6 +23,9 @@ public class GridPlacement : MonoBehaviour
     public AnimatorController ConveyerLink1Controller;
     public AnimatorController ConveyerLink2Controller;
     public AnimatorController ConveyerLink3Controller;
+    public AnimatorController ConveyerLink4Controller;
+    public AnimatorController ConveyerLink5Controller;
+    public AnimatorController ConveyerLink6Controller;
 
     private Vector2Int[] directions =
     {
@@ -160,7 +163,6 @@ public class GridPlacement : MonoBehaviour
 
     public void CheckConveyer(ConveyerClass Conveyer)
     {
-        print(Conveyer.OutputDirection);
         foreach (var dir in directions)
         {
             Vector2Int neighborpos = Conveyer.Gridpos + dir;
@@ -205,20 +207,42 @@ public class GridPlacement : MonoBehaviour
         SpriteRenderer.flipX = false;
         var animator = ConveyerToRotate.Object.GetComponent<Animator>();
         // Rotation Directions
+        print(getDirection(ConveyerToRotate.OutputDirection));
+        print(Direction);
         switch (getDirection(ConveyerToRotate.OutputDirection))
         {
             case ConveyerDirection.Up:
                 animator.runtimeAnimatorController = ConveyerLink3Controller;
+                if (Direction == Vector2Int.right)
+                {
+                    animator.runtimeAnimatorController = ConveyerLink4Controller;
+                }
                 return;
             case ConveyerDirection.Down:
                 animator.runtimeAnimatorController = ConveyerLink2Controller;
+                if (Direction == Vector2Int.left)
+                {
+                    animator.runtimeAnimatorController = ConveyerLink5Controller;
+                    ConveyerToRotate.Object.transform.Rotate(0,0,270f);
+                }
                 return;
             case ConveyerDirection.Left:
                 animator.runtimeAnimatorController = ConveyerLink1Controller;
+                if (Direction == Vector2Int.up)
+                {
+                    animator.runtimeAnimatorController = ConveyerLink6Controller;
+                }
                 return;
             case ConveyerDirection.Right:
-                animator.runtimeAnimatorController = ConveyerLink3Controller;
-                ConveyerToRotate.Object.transform.Rotate(0, 0,270);
+                if (Direction == Vector2Int.down)
+                {
+                    animator.runtimeAnimatorController = ConveyerLink5Controller;
+                }
+                else
+                {
+                    animator.runtimeAnimatorController = ConveyerLink3Controller;
+                    ConveyerToRotate.Object.transform.Rotate(0, 0,270);
+                }
                 return;
             default:
                 return;

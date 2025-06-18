@@ -237,6 +237,9 @@ MonoBehaviour:
   ConveyerLink1Controller: {fileID: 8726056324042505714, guid: 6ea8258ddea51ef47a8884873a19aca8, type: 3}
   ConveyerLink2Controller: {fileID: 1387686587042130378, guid: 79dc8ea10c67ab34cb104b2702ff9d1f, type: 3}
   ConveyerLink3Controller: {fileID: 7275219345059673657, guid: b284b6ccf2106354c8e5ded4d429d557, type: 3}
+  ConveyerLink4Controller: {fileID: 580540652067083368, guid: 58c6417f939e1014eab9f5d93c2b415f, type: 3}
+  ConveyerLink5Controller: {fileID: 550732620025565794, guid: 72adabd4e1cf5b64fb0de5f9e15f6a7a, type: 3}
+  ConveyerLink6Controller: {fileID: 6873055171432191232, guid: 9d03e68b6489a6b4fb112b1741224de8, type: 3}
 --- !u!4 &859704979
 Transform:
   m_ObjectHideFlags: 0
