@@ -15,18 +15,16 @@ public class GridPlacement : MonoBehaviour
     
     Dictionary<string, ObjectClass> Objects = new Dictionary<string, ObjectClass>();
     Dictionary<string, ConveyerClass> Conveyers = new Dictionary<string, ConveyerClass>();
+    Dictionary<string, ConveyerItem> ConveyerItems = new Dictionary<string, ConveyerItem>();
+    Dictionary<string, Fuel> Fuels = new Dictionary<string, Fuel>();
     
     // Variables
     
     public float gridSize;
     public Camera cam;
-    public AnimatorController ConveyerLink1Controller;
-    public AnimatorController ConveyerLink2Controller;
-    public AnimatorController ConveyerLink3Controller;
-    public AnimatorController ConveyerLink4Controller;
-    public AnimatorController ConveyerLink5Controller;
-    public AnimatorController ConveyerLink6Controller;
-
+    public AnimatorController[] ConveyerAnimationControllers;
+    public GameObject[] FuelObjectPrefabs;
+    
     private Vector2Int[] directions =
     {
         Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
@@ -90,6 +88,16 @@ public class GridPlacement : MonoBehaviour
                 return;
         }
     }
+
+    private void Start()
+    {
+        // Fuels List
+        Fuel BasicFuel = new Fuel("Basic Fuel", 5, FuelObjectPrefabs[0]);
+        Fuels.Add(BasicFuel.FuelName, BasicFuel);
+    }
+
+    // TO DO TOMORROW: ADD A LIST OF CONVEYERABLE CLASSES, CONVERT TO CONVEYERITERM CLASS, MAKE SPAWNER, USE VECTOR2 TO DIRECTIOn, VECTORINT FOR GRID POS, MOVE ITEM TO NEXT GRIDPOS, AND KEEP DOING THAT BASED ON CONVEYERPOSITION
+    
     
     void Update() 
     {
@@ -207,46 +215,49 @@ public class GridPlacement : MonoBehaviour
         SpriteRenderer.flipX = false;
         var animator = ConveyerToRotate.Object.GetComponent<Animator>();
         // Rotation Directions
-        print(getDirection(ConveyerToRotate.OutputDirection));
-        print(Direction);
         switch (getDirection(ConveyerToRotate.OutputDirection))
         {
             case ConveyerDirection.Up:
-                animator.runtimeAnimatorController = ConveyerLink3Controller;
+                animator.runtimeAnimatorController = ConveyerAnimationControllers[2];
                 if (Direction == Vector2Int.right)
                 {
-                    animator.runtimeAnimatorController = ConveyerLink4Controller;
+                    animator.runtimeAnimatorController = ConveyerAnimationControllers[3];
                 }
                 return;
             case ConveyerDirection.Down:
-                animator.runtimeAnimatorController = ConveyerLink2Controller;
+                animator.runtimeAnimatorController = ConveyerAnimationControllers[1];
                 if (Direction == Vector2Int.left)
                 {
-                    animator.runtimeAnimatorController = ConveyerLink5Controller;
+                    animator.runtimeAnimatorController = ConveyerAnimationControllers[4];
                     ConveyerToRotate.Object.transform.Rotate(0,0,270f);
                 }
                 return;
             case ConveyerDirection.Left:
-                animator.runtimeAnimatorController = ConveyerLink1Controller;
+                animator.runtimeAnimatorController = ConveyerAnimationControllers[0];
                 if (Direction == Vector2Int.up)
                 {
-                    animator.runtimeAnimatorController = ConveyerLink6Controller;
+                    animator.runtimeAnimatorController = ConveyerAnimationControllers[5];
                 }
                 return;
             case ConveyerDirection.Right:
                 if (Direction == Vector2Int.down)
                 {
-                    animator.runtimeAnimatorController = ConveyerLink5Controller;
+                    animator.runtimeAnimatorController = ConveyerAnimationControllers[4];
                 }
                 else
                 {
-                    animator.runtimeAnimatorController = ConveyerLink3Controller;
+                    animator.runtimeAnimatorController = ConveyerAnimationControllers[2];
                     ConveyerToRotate.Object.transform.Rotate(0, 0,270);
                 }
                 return;
             default:
                 return;
         }
+    }
+
+    public void SpawnConveyerFuel(ConveyerClass Conveyer, Fuel fuel)
+    {
+        
     }
     
 }

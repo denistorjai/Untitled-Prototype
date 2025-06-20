@@ -4,10 +4,6 @@ using UnityEngine;
 public class ConveyerClass : ObjectClass
 {
     
-    public void ChangeConveyer()
-    {
-       
-        
-    }
+    
 
 }
