@@ -16,14 +16,13 @@ public class GridPlacement : MonoBehaviour
     Dictionary<string, ObjectClass> Objects = new Dictionary<string, ObjectClass>();
     Dictionary<string, ConveyerClass> Conveyers = new Dictionary<string, ConveyerClass>();
     Dictionary<string, ConveyerItem> ConveyerItems = new Dictionary<string, ConveyerItem>();
-    Dictionary<string, Fuel> Fuels = new Dictionary<string, Fuel>();
     
     // Variables
     
     public float gridSize;
     public Camera cam;
     public AnimatorController[] ConveyerAnimationControllers;
-    public GameObject[] FuelObjectPrefabs;
+    public MinerManager MinerManager;
     
     private Vector2Int[] directions =
     {
@@ -44,6 +43,8 @@ public class GridPlacement : MonoBehaviour
                 ConveyerObject.ObjectItem = item;
                 ConveyerObject.ObjectID = ReturnID();
                 ConveyerObject.Object.name = "PreviewObject";
+                ConveyerObject.ObjectSize = ConveyerObject.Object.GetComponent<SpriteRenderer>().bounds.size;
+                print(ConveyerObject.ObjectSize);
                 PreviewGhost = ConveyerObject;
                 PreviewGhostRenderer = ConveyerObject.Object.GetComponent<SpriteRenderer>();
                 SyncAnimation(ConveyerObject);
@@ -91,9 +92,21 @@ public class GridPlacement : MonoBehaviour
 
     private void Start()
     {
-        // Fuels List
-        Fuel BasicFuel = new Fuel("Basic Fuel", 5, FuelObjectPrefabs[0]);
-        Fuels.Add(BasicFuel.FuelName, BasicFuel);
+        // Get Minerals
+        Dictionary<string, MineralClass> Minerals = MinerManager.GetMinerals();
+        foreach (var Item in Minerals.Values)
+        {
+            ObjectMineralClass MineralObject = new ObjectMineralClass();
+            MineralObject.Mineral = Item;
+            MineralObject.ObjectID = ReturnID();
+            MineralObject.Gridpos = MineralObject.Mineral.GridPos;
+            MineralObject.Object = MineralObject.Mineral.MineralObject;
+            MineralObject.Object.name = "MineralObject";
+            MineralObject.ActiveObject = true;
+            MineralObject.ObjectSize = MineralObject.Object.GetComponent<SpriteRenderer>().bounds.size;
+            print(MineralObject.ObjectSize);
+            Objects.Add(MineralObject.ObjectID, MineralObject);
+        }
     }
 
     // TO DO TOMORROW: ADD A LIST OF CONVEYERABLE CLASSES, CONVERT TO CONVEYERITERM CLASS, MAKE SPAWNER, USE VECTOR2 TO DIRECTIOn, VECTORINT FOR GRID POS, MOVE ITEM TO NEXT GRIDPOS, AND KEEP DOING THAT BASED ON CONVEYERPOSITION
@@ -116,8 +129,10 @@ public class GridPlacement : MonoBehaviour
     {
         foreach (var Object in Objects)
         {
-            if (Object.Value.Object.transform.position == PreviewGhost.Object.transform.position)
+            var PreviewGhostGridPos = new Vector2Int(Mathf.RoundToInt(PreviewGhost.Object.transform.position.x), Mathf.RoundToInt(PreviewGhost.Object.transform.position.y));
+            if (CheckIntersect(Object.Value.Gridpos, Object.Value.ObjectSize, PreviewGhostGridPos, PreviewGhost.ObjectSize) == false)
             {
+                print(CheckIntersect(Object.Value.Gridpos, Object.Value.ObjectSize, PreviewGhostGridPos, PreviewGhost.ObjectSize));
                 return;
             }
         }
@@ -255,9 +270,9 @@ public class GridPlacement : MonoBehaviour
         }
     }
 
-    public void SpawnConveyerFuel(ConveyerClass Conveyer, Fuel fuel)
+    bool CheckIntersect(Vector2Int GridposA, Vector3 SizeA, Vector2Int GridposB, Vector3 SizeB)
     {
-        
+        return false;
     }
     
 }
