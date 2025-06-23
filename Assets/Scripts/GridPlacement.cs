@@ -153,38 +153,67 @@ public class GridPlacement : MonoBehaviour
     // ReSharper disable Unity.PerformanceAnalysis
     public void PlaceObject()
     {
+
+        var BlockPlace = false;
+        var AllowMiner = false;
+        
         foreach (var Object in Objects)
         {
-            if (Object.Value.Object.name != "MineralObject")
-            {
-                var PreviewGhostGridPos = new Vector2Int(Mathf.RoundToInt(PreviewGhost.Object.transform.position.x), Mathf.RoundToInt(PreviewGhost.Object.transform.position.y));
-                if (Object.Value.Gridpos == PreviewGhostGridPos)
+            // Preview Object Position
+           Vector2Int PreviewGhostGridpos = new Vector2Int(
+                Mathf.RoundToInt(PreviewGhost.Object.transform.position.x),
+                Mathf.RoundToInt(PreviewGhost.Object.transform.position.y)
+                );
+
+                if (Object.Value.Gridpos == PreviewGhostGridpos)
                 {
-                    return;
+                    if (Object.Value.Object.name == "MineralObject")
+                    {
+                        var Broken = false;
+                        foreach (var Item in Objects)
+                        {
+                            if (Item.Value.Gridpos == Object.Value.Gridpos)
+                            {
+                                if (Item.Value.Object.name == "Miner")
+                                {
+                                    BlockPlace = true;
+                                    AllowMiner = false;
+                                    Broken = true;
+                                    break;
+                                }
+                                else
+                                {
+                                    AllowMiner = true;
+                                }
+                            }
+                        }
+                        if (Broken == true)
+                        {
+                            break;
+                        }
+                    } else
+                    {
+                        print("blocked");
+                        BlockPlace = true;
+                        break;
+                    }
                 }
-            }
-            
-            if (PreviewGhost.ObjectItem.ItemName == "Miner")
-            {
-                print("OBJECT VVVVV");
-                var PreviewGhostGridPos = new Vector2Int(Mathf.RoundToInt(PreviewGhost.Object.transform.position.x), Mathf.RoundToInt(PreviewGhost.Object.transform.position.y));
-                print(Object.Value.ObjectID);
-                print(Object.Value.Gridpos);
-                print(PreviewGhostGridPos);
-                if (Object.Value.Gridpos != PreviewGhostGridPos)
-                {
-                    return;
-                }
-            }
-            
-            // TO DO: Fix Intersection Points Later
-            
-            //if (CheckIntersect(Object.Value.Gridpos, Object.Value.ObjectSize, PreviewGhostGridPos, PreviewGhost.ObjectSize) == false)
-            //  {
-            //    print(CheckIntersect(Object.Value.Gridpos, Object.Value.ObjectSize, PreviewGhostGridPos, PreviewGhost.ObjectSize));
-            //    return;
-            //  }
         }
+        
+        print("Values");
+        print(BlockPlace);
+        print(AllowMiner);
+        
+        if (BlockPlace)
+        {
+            return;
+        }
+
+        if (!AllowMiner)
+        {
+            return;
+        }
+        
         switch (PreviewGhost.ObjectItem.ItemName)
         {
             case "Conveyer":
@@ -205,6 +234,7 @@ public class GridPlacement : MonoBehaviour
                 SyncAnimation(ConveyerObject);
                 return;
             case "Miner":
+                print("PLACED");
                 MinerClass MinerObject = new MinerClass();
                 MinerObject.Object = Instantiate(PreviewGhost.Object, PreviewGhost.Object.transform.position, PreviewGhost.Object.transform.rotation);
                 MinerObject.ObjectID = ReturnID();
