@@ -23,7 +23,8 @@ public class UIHandler : MonoBehaviour
     {
         items = new List<ItemClass>()
         {
-            new ItemClass(prefabs[0], "Conveyer", "Conveyer", sprites[0], true)
+            new ItemClass(prefabs[0], "Conveyer", "Conveyer", sprites[0], true),
+            new ItemClass(prefabs[1], "Miner", "Miner", sprites[1], true)
         };
         CreateUIButtons();
     }

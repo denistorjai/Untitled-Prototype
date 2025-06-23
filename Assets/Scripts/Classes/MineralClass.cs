@@ -5,7 +5,6 @@ public class MineralClass
 {
     
     public string Mineral = "BasicFuel";
-    public Vector2Int GridPos;
     public GameObject MineralObject;
     public Fuel Fuel;
     public bool BeingMined = false;
@@ -15,7 +14,6 @@ public class MineralClass
         this.Mineral = mineral;
         this.MineralObject = mineralObject;
         this.Fuel = fuel;
-        this.GridPos = new Vector2Int(  Mathf.RoundToInt(mineralObject.transform.position.x), Mathf.RoundToInt(mineralObject.transform.position.y) );
     }
 
 }

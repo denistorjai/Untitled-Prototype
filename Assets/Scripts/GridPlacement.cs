@@ -49,6 +49,27 @@ public class GridPlacement : MonoBehaviour
                 PreviewGhostRenderer = ConveyerObject.Object.GetComponent<SpriteRenderer>();
                 SyncAnimation(ConveyerObject);
                 return;
+            case "Miner":
+                MinerClass MinerObject = new MinerClass();
+                MinerObject.Object = Instantiate(item.ObjectPrefab);
+                MinerObject.ObjectItem = item;
+                MinerObject.ObjectID = ReturnID();
+                MinerObject.Object.name = "PreviewObject";
+                MinerObject.ObjectSize = MinerObject.Object.GetComponent<SpriteRenderer>().bounds.size;
+                PreviewGhost = MinerObject;
+                PreviewGhostRenderer = MinerObject.Object.GetComponent<SpriteRenderer>();
+                SyncAnimation(MinerObject);
+                return;
+            default:
+                ObjectClass Object = new ObjectClass();
+                Object.Object = Instantiate(item.ObjectPrefab);
+                Object.ObjectItem = item;
+                Object.ObjectID = ReturnID();
+                Object.ObjectSize = Object.Object.GetComponent<SpriteRenderer>().bounds.size;
+                PreviewGhost = Object;
+                PreviewGhostRenderer = Object.Object.GetComponent<SpriteRenderer>();
+                SyncAnimation(Object);
+                return;
         }
     }
     
@@ -99,18 +120,23 @@ public class GridPlacement : MonoBehaviour
             ObjectMineralClass MineralObject = new ObjectMineralClass();
             MineralObject.Mineral = Item;
             MineralObject.ObjectID = ReturnID();
-            MineralObject.Gridpos = MineralObject.Mineral.GridPos;
             MineralObject.Object = MineralObject.Mineral.MineralObject;
+            Vector2Int Gridpos = new Vector2Int(
+                Mathf.RoundToInt(MineralObject.Object.transform.position.x),
+                Mathf.RoundToInt(MineralObject.Object.transform.position.y)
+            );
+            MineralObject.Gridpos = Gridpos;
             MineralObject.Object.name = "MineralObject";
             MineralObject.ActiveObject = true;
             MineralObject.ObjectSize = MineralObject.Object.GetComponent<SpriteRenderer>().bounds.size;
-            print(MineralObject.ObjectSize);
             Objects.Add(MineralObject.ObjectID, MineralObject);
+            print("Object");
+            print(MineralObject.ObjectID);
+            print(MineralObject.Gridpos);
         }
     }
 
     // TO DO TOMORROW: ADD A LIST OF CONVEYERABLE CLASSES, CONVERT TO CONVEYERITERM CLASS, MAKE SPAWNER, USE VECTOR2 TO DIRECTIOn, VECTORINT FOR GRID POS, MOVE ITEM TO NEXT GRIDPOS, AND KEEP DOING THAT BASED ON CONVEYERPOSITION
-    
     
     void Update() 
     {
@@ -129,12 +155,35 @@ public class GridPlacement : MonoBehaviour
     {
         foreach (var Object in Objects)
         {
-            var PreviewGhostGridPos = new Vector2Int(Mathf.RoundToInt(PreviewGhost.Object.transform.position.x), Mathf.RoundToInt(PreviewGhost.Object.transform.position.y));
-            if (CheckIntersect(Object.Value.Gridpos, Object.Value.ObjectSize, PreviewGhostGridPos, PreviewGhost.ObjectSize) == false)
+            if (Object.Value.Object.name != "MineralObject")
             {
-                print(CheckIntersect(Object.Value.Gridpos, Object.Value.ObjectSize, PreviewGhostGridPos, PreviewGhost.ObjectSize));
-                return;
+                var PreviewGhostGridPos = new Vector2Int(Mathf.RoundToInt(PreviewGhost.Object.transform.position.x), Mathf.RoundToInt(PreviewGhost.Object.transform.position.y));
+                if (Object.Value.Gridpos == PreviewGhostGridPos)
+                {
+                    return;
+                }
             }
+            
+            if (PreviewGhost.ObjectItem.ItemName == "Miner")
+            {
+                print("OBJECT VVVVV");
+                var PreviewGhostGridPos = new Vector2Int(Mathf.RoundToInt(PreviewGhost.Object.transform.position.x), Mathf.RoundToInt(PreviewGhost.Object.transform.position.y));
+                print(Object.Value.ObjectID);
+                print(Object.Value.Gridpos);
+                print(PreviewGhostGridPos);
+                if (Object.Value.Gridpos != PreviewGhostGridPos)
+                {
+                    return;
+                }
+            }
+            
+            // TO DO: Fix Intersection Points Later
+            
+            //if (CheckIntersect(Object.Value.Gridpos, Object.Value.ObjectSize, PreviewGhostGridPos, PreviewGhost.ObjectSize) == false)
+            //  {
+            //    print(CheckIntersect(Object.Value.Gridpos, Object.Value.ObjectSize, PreviewGhostGridPos, PreviewGhost.ObjectSize));
+            //    return;
+            //  }
         }
         switch (PreviewGhost.ObjectItem.ItemName)
         {
@@ -144,16 +193,40 @@ public class GridPlacement : MonoBehaviour
                 ConveyerObject.ObjectID = ReturnID();
                 ConveyerObject.Object.name = PreviewGhost.ObjectItem.ItemName;
                 Objects.Add(ConveyerObject.ObjectID, ConveyerObject);
-                Vector2Int gridPos = new Vector2Int(
+                Vector2Int ConveyerGridPos = new Vector2Int(
                     Mathf.RoundToInt(ConveyerObject.Object.transform.position.x),
                     Mathf.RoundToInt(ConveyerObject.Object.transform.position.y)
                 );
-                ConveyerObject.Gridpos = gridPos;
+                ConveyerObject.Gridpos = ConveyerGridPos;
                 ConveyerObject.OutputDirection = PreviewGhost.OutputDirection;
                 Conveyers.Add(ConveyerObject.ObjectID, ConveyerObject);
                 CheckConveyer(ConveyerObject);
                 ConveyerObject.ActiveObject = true;
                 SyncAnimation(ConveyerObject);
+                return;
+            case "Miner":
+                MinerClass MinerObject = new MinerClass();
+                MinerObject.Object = Instantiate(PreviewGhost.Object, PreviewGhost.Object.transform.position, PreviewGhost.Object.transform.rotation);
+                MinerObject.ObjectID = ReturnID();
+                MinerObject.Object.name = PreviewGhost.ObjectItem.ItemName;
+                Objects.Add(MinerObject.ObjectID, MinerObject);
+                Vector2Int MinerGridPos = new Vector2Int(
+                    Mathf.RoundToInt(MinerObject.Object.transform.position.x),
+                    Mathf.RoundToInt(MinerObject.Object.transform.position.y)
+                );
+                MinerObject.Gridpos = MinerGridPos;
+                return;
+            default:
+                ObjectClass Object = new ObjectClass();
+                Object.Object = Instantiate(PreviewGhost.Object, PreviewGhost.Object.transform.position, PreviewGhost.Object.transform.rotation);
+                Object.ObjectID = ReturnID();
+                Object.Object.name = PreviewGhost.ObjectItem.ItemName;
+                Objects.Add(Object.ObjectID, Object);
+                Vector2Int GridPos = new Vector2Int(
+                    Mathf.RoundToInt(PreviewGhost.Object.transform.position.x),
+                    Mathf.RoundToInt(PreviewGhost.Object.transform.position.y)
+                );
+                Object.Gridpos = GridPos;
                 return;
         }
     }
@@ -270,9 +343,10 @@ public class GridPlacement : MonoBehaviour
         }
     }
 
+    // Finish Check intersct Function later
     bool CheckIntersect(Vector2Int GridposA, Vector3 SizeA, Vector2Int GridposB, Vector3 SizeB)
     {
-        return false;
+        return true;
     }
     
 }
