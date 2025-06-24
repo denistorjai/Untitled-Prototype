@@ -16,6 +16,8 @@ public class GridPlacement : MonoBehaviour
     Dictionary<string, ObjectClass> Objects = new Dictionary<string, ObjectClass>();
     Dictionary<string, ConveyerClass> Conveyers = new Dictionary<string, ConveyerClass>();
     Dictionary<string, ConveyerItem> ConveyerItems = new Dictionary<string, ConveyerItem>();
+    Dictionary<string, MinerClass> Miners = new Dictionary<string, MinerClass>();
+    Dictionary<string, ObjectMineralClass> ObjectMinerals = new Dictionary<string, ObjectMineralClass>();
     
     // Variables
     
@@ -130,13 +132,12 @@ public class GridPlacement : MonoBehaviour
             MineralObject.ActiveObject = true;
             MineralObject.ObjectSize = MineralObject.Object.GetComponent<SpriteRenderer>().bounds.size;
             Objects.Add(MineralObject.ObjectID, MineralObject);
-            print("Object");
-            print(MineralObject.ObjectID);
-            print(MineralObject.Gridpos);
+            ObjectMinerals.Add(MineralObject.ObjectID, MineralObject);
         }
     }
 
     // TO DO TOMORROW: ADD A LIST OF CONVEYERABLE CLASSES, CONVERT TO CONVEYERITERM CLASS, MAKE SPAWNER, USE VECTOR2 TO DIRECTIOn, VECTORINT FOR GRID POS, MOVE ITEM TO NEXT GRIDPOS, AND KEEP DOING THAT BASED ON CONVEYERPOSITION
+    private float Cooldown;
     
     void Update() 
     {
@@ -146,6 +147,26 @@ public class GridPlacement : MonoBehaviour
             MousePos.z = 0;
             PreviewGhost.Object.transform.position = GridClamp(MousePos);
         }
+        
+        // Object & Spawning Management
+        Cooldown -= Time.deltaTime;
+        
+        // Miner Spawning
+        if (Cooldown < 0)
+        {
+            foreach (MinerClass Miner in Miners.Values)
+            {
+                var RightNeighborTile = Miner.Gridpos + Vector2.right;
+                foreach (ConveyerClass Conveyer in Conveyers.Values)
+                {
+                    if (Conveyer.Gridpos == RightNeighborTile)
+                    {
+                        SpawnFuel(Miner, Conveyer);
+                    }
+                }
+            } 
+            Cooldown = 3f;
+        }
     }
     
     // Placing Methods
@@ -153,7 +174,6 @@ public class GridPlacement : MonoBehaviour
     // ReSharper disable Unity.PerformanceAnalysis
     public void PlaceObject()
     {
-
         var BlockPlace = false;
         var AllowMiner = false;
         
@@ -165,52 +185,37 @@ public class GridPlacement : MonoBehaviour
                 Mathf.RoundToInt(PreviewGhost.Object.transform.position.y)
                 );
 
-                if (Object.Value.Gridpos == PreviewGhostGridpos)
-                {
-                    if (Object.Value.Object.name == "MineralObject")
-                    {
+                if (Object.Value.Gridpos == PreviewGhostGridpos) {
+                    if (Object.Value.Object.name == "MineralObject") {
                         var Broken = false;
-                        foreach (var Item in Objects)
-                        {
-                            if (Item.Value.Gridpos == Object.Value.Gridpos)
-                            {
-                                if (Item.Value.Object.name == "Miner")
-                                {
+                        foreach (var Item in Objects) {
+                            if (Item.Value.Gridpos == Object.Value.Gridpos) {
+                                if (Item.Value.Object.name == "Miner") {
                                     BlockPlace = true;
                                     AllowMiner = false;
                                     Broken = true;
                                     break;
                                 }
-                                else
-                                {
+                                else {
                                     AllowMiner = true;
                                 }
                             }
                         }
-                        if (Broken == true)
-                        {
+                        if (Broken == true) {
                             break;
                         }
-                    } else
-                    {
-                        print("blocked");
+                    } else {
                         BlockPlace = true;
                         break;
                     }
                 }
         }
         
-        print("Values");
-        print(BlockPlace);
-        print(AllowMiner);
-        
-        if (BlockPlace)
-        {
+        if (BlockPlace) {
             return;
         }
 
-        if (!AllowMiner)
-        {
+        if (!AllowMiner && PreviewGhost.ObjectItem.ItemType == "Miner") {
             return;
         }
         
@@ -234,17 +239,18 @@ public class GridPlacement : MonoBehaviour
                 SyncAnimation(ConveyerObject);
                 return;
             case "Miner":
-                print("PLACED");
                 MinerClass MinerObject = new MinerClass();
                 MinerObject.Object = Instantiate(PreviewGhost.Object, PreviewGhost.Object.transform.position, PreviewGhost.Object.transform.rotation);
                 MinerObject.ObjectID = ReturnID();
                 MinerObject.Object.name = PreviewGhost.ObjectItem.ItemName;
                 Objects.Add(MinerObject.ObjectID, MinerObject);
+                Miners.Add(MinerObject.ObjectID, MinerObject);
                 Vector2Int MinerGridPos = new Vector2Int(
                     Mathf.RoundToInt(MinerObject.Object.transform.position.x),
                     Mathf.RoundToInt(MinerObject.Object.transform.position.y)
                 );
                 MinerObject.Gridpos = MinerGridPos;
+                SyncAnimation(MinerObject);
                 return;
             default:
                 ObjectClass Object = new ObjectClass();
@@ -377,6 +383,20 @@ public class GridPlacement : MonoBehaviour
     bool CheckIntersect(Vector2Int GridposA, Vector3 SizeA, Vector2Int GridposB, Vector3 SizeB)
     {
         return true;
+    }
+
+    public void SpawnFuel(MinerClass Miner, ConveyerClass Conveyer)
+    {
+        foreach (ObjectMineralClass Mineral in ObjectMinerals.Values)
+        {
+            if (Mineral.Gridpos == Miner.Gridpos)
+            {
+                var Fuel = Mineral.Mineral.Fuel.ObjectPrefab;
+                var ConveyerItem = new ConveyerItem();
+                ConveyerItem.Fuel = Mineral.Mineral.Fuel;
+                ConveyerItem.ObjectPrefab = Instantiate(Fuel, Conveyer.Object.transform.position, Conveyer.Object.transform.rotation);
+            }
+        }
     }
     
 }
