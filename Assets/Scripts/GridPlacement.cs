@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Object = System.Object;
 using Random = System.Random;
+using DG.Tweening;
 
 public class GridPlacement : MonoBehaviour
 {
@@ -167,6 +168,34 @@ public class GridPlacement : MonoBehaviour
             } 
             Cooldown = 3f;
         }
+        
+        // Conveyer Items
+        foreach (ConveyerClass Conveyer in Conveyers.Values)
+        {
+            foreach (var Item in Conveyer.conveyerItems.Values)
+            {
+                var Output = Conveyer.Gridpos + Conveyer.OutputDirection;
+                foreach (ConveyerClass ConveyerComp in Conveyers.Values)
+                {
+                    if (ConveyerComp.Gridpos == Output)
+                    {
+                        if (ConveyerComp.conveyerItems.Count < 1)
+                        {
+                            if (Item.CurrentTween == null || !Item.CurrentTween.IsActive() || !Item.CurrentTween.IsPlaying())
+                            {
+                                Item.CurrentTween = Item.ObjectPrefab.transform
+                                    .DOMove(GridClamp(ConveyerComp.Object.transform.position), 0.4f).SetEase(Ease.Linear).OnComplete(() =>
+                                    {
+                                        ConveyerComp.conveyerItems.Add(Item.ObjectID, Item);
+                                        Conveyer.conveyerItems.Remove(Item.ObjectID);
+                                    });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
     }
     
     // Placing Methods
@@ -391,12 +420,16 @@ public class GridPlacement : MonoBehaviour
         {
             if (Mineral.Gridpos == Miner.Gridpos)
             {
-                var Fuel = Mineral.Mineral.Fuel.ObjectPrefab;
-                var ConveyerItem = new ConveyerItem();
-                ConveyerItem.Fuel = Mineral.Mineral.Fuel;
-                ConveyerItem.ObjectPrefab = Instantiate(Fuel, Conveyer.Object.transform.position, Conveyer.Object.transform.rotation);
+                if (Conveyer.conveyerItems.Count < 1)
+                {
+                    var Fuel = Mineral.Mineral.Fuel.ObjectPrefab;
+                    var ConveyerItem = new ConveyerItem();
+                    ConveyerItem.Fuel = Mineral.Mineral.Fuel;
+                    ConveyerItem.ObjectPrefab = Instantiate(Fuel, GridClamp(Conveyer.Object.transform.position), Quaternion.identity);
+                    ConveyerItem.ObjectID = ReturnID();
+                    Conveyer.conveyerItems.Add(ConveyerItem.ObjectID, ConveyerItem);
+                }
             }
         }
     }
-    
 }
