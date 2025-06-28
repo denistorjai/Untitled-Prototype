@@ -26,6 +26,7 @@ public class GridPlacement : MonoBehaviour
     public Camera cam;
     public AnimatorController[] ConveyerAnimationControllers;
     public MinerManager MinerManager;
+    public PlayerManager PlayerManager;
     public GameObject SpaceshipPrefab;
     
     private Vector2Int[] directions =
@@ -206,6 +207,7 @@ public class GridPlacement : MonoBehaviour
                                         {
                                             case "SpaceShip":
                                                 Destroy(Item.ObjectPrefab);
+                                                PlayerManager.AddFuel(Item.Fuel.FuelAmount);
                                                 ComparingObject.ConveyerItems.Remove(Item.ObjectID);
                                                 DeleteClass(Item);
                                                 return;

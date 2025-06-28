@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +11,8 @@ public class UIHandler : MonoBehaviour
     public PlayerManager manager;
     public GameObject UIContainer;
     public GameObject ButtonPrefab;
+    public TMP_Text FuelText;
+    public TMP_Text TimeLeft;
 
     // Data
     
@@ -48,6 +51,12 @@ public class UIHandler : MonoBehaviour
     void ButtonClicked(ItemClass item)
     {
         manager.ItemPlacingPreview(item);
+    }
+
+    public void UpdateScoreUI(float Time, float Score)
+    {
+        TimeLeft.text = Time.ToString();
+        FuelText.text = Score.ToString();
     }
     
 }

@@ -10,6 +10,10 @@ public class PlayerManager : MonoBehaviour
     // Variables
     
     public GridPlacement gridPlacement;
+    public UIHandler UIhandler;
+    public float CurrentFuel = 0;
+    public float CurrentTimeLeft = 10;
+    public float MinimumScore = 500;
     
     // Placing
 
@@ -38,6 +42,8 @@ public class PlayerManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Placement
+        
         if (CurrentlyPlacing)
         {
             if (Mouse.current.leftButton.isPressed)
@@ -50,9 +56,27 @@ public class PlayerManager : MonoBehaviour
                 gridPlacement.rotatePreview();
             }
         }
+        
+        // Round Timer
+        CurrentTimeLeft -= Time.deltaTime;
+
+        if (CurrentTimeLeft <= 0)
+        {
+            if (CurrentFuel < MinimumScore)
+            {
+                print("SCORE NOT PASSED");
+                GameManager.instance.EndGame();
+            }
+        }
+        
+        UIhandler.UpdateScoreUI(CurrentTimeLeft, CurrentFuel);
+        
     }
-
+    
     // Methods
-
+    public void AddFuel(float FueltoAdd)
+    {
+        CurrentFuel += FueltoAdd;
+    }
     
 }
