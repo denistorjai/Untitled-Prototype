@@ -26,6 +26,7 @@ public class GridPlacement : MonoBehaviour
     public Camera cam;
     public AnimatorController[] ConveyerAnimationControllers;
     public MinerManager MinerManager;
+    public GameObject SpaceshipPrefab;
     
     private Vector2Int[] directions =
     {
@@ -135,6 +136,18 @@ public class GridPlacement : MonoBehaviour
             Objects.Add(MineralObject.ObjectID, MineralObject);
             ObjectMinerals.Add(MineralObject.ObjectID, MineralObject);
         }
+        
+        // Add Space Ship
+        SpaceShip Spaceship = new SpaceShip();
+        Spaceship.Object = SpaceshipPrefab;
+        Spaceship.ObjectID = ReturnID();
+        Spaceship.Gridpos = new Vector2Int(0, 0);
+        Spaceship.ActiveObject = true;
+        Spaceship.AllowConveyerItems = true;
+        Spaceship.AllowedConveyerItems = 100000000;
+        Spaceship.ObjectType = "SpaceShip";
+        Objects.Add(Spaceship.ObjectID, Spaceship);
+
     }
 
     // TO DO TOMORROW: ADD A LIST OF CONVEYERABLE CLASSES, CONVERT TO CONVEYERITERM CLASS, MAKE SPAWNER, USE VECTOR2 TO DIRECTIOn, VECTORINT FOR GRID POS, MOVE ITEM TO NEXT GRIDPOS, AND KEEP DOING THAT BASED ON CONVEYERPOSITION
@@ -172,22 +185,34 @@ public class GridPlacement : MonoBehaviour
         // Conveyer Items
         foreach (ConveyerClass Conveyer in Conveyers.Values)
         {
-            foreach (var Item in Conveyer.conveyerItems.Values)
+            foreach (var Item in Conveyer.ConveyerItems.Values)
             {
                 var Output = Conveyer.Gridpos + Conveyer.OutputDirection;
-                foreach (ConveyerClass ConveyerComp in Conveyers.Values)
+                foreach (var ComparingObject in Objects.Values)
                 {
-                    if (ConveyerComp.Gridpos == Output)
+                    if (ComparingObject.Gridpos == Output)
                     {
-                        if (ConveyerComp.conveyerItems.Count < 1)
+                        if (ComparingObject.ConveyerItems.Count < ComparingObject.AllowedConveyerItems)
                         {
                             if (Item.CurrentTween == null || !Item.CurrentTween.IsActive() || !Item.CurrentTween.IsPlaying())
                             {
                                 Item.CurrentTween = Item.ObjectPrefab.transform
-                                    .DOMove(GridClamp(ConveyerComp.Object.transform.position), 0.4f).SetEase(Ease.Linear).OnComplete(() =>
+                                    .DOMove(GridClamp(ComparingObject.Object.transform.position), 0.4f).SetEase(Ease.Linear).OnComplete(() =>
                                     {
-                                        ConveyerComp.conveyerItems.Add(Item.ObjectID, Item);
-                                        Conveyer.conveyerItems.Remove(Item.ObjectID);
+                                        ComparingObject.ConveyerItems.Add(Item.ObjectID, Item);
+                                        Conveyer.ConveyerItems.Remove(Item.ObjectID);
+
+                                        switch (ComparingObject.ObjectType)
+                                        {
+                                            case "SpaceShip":
+                                                Destroy(Item.ObjectPrefab);
+                                                ComparingObject.ConveyerItems.Remove(Item.ObjectID);
+                                                DeleteClass(Item);
+                                                return;
+                                            default:
+                                                return;
+                                        }
+                                        
                                     });
                             }
                         }
@@ -196,6 +221,11 @@ public class GridPlacement : MonoBehaviour
             }
         }
         
+    }
+
+    public void DeleteClass(ConveyerItem item)
+    {
+        item = null;
     }
     
     // Placing Methods
@@ -265,6 +295,7 @@ public class GridPlacement : MonoBehaviour
                 Conveyers.Add(ConveyerObject.ObjectID, ConveyerObject);
                 CheckConveyer(ConveyerObject);
                 ConveyerObject.ActiveObject = true;
+                ConveyerObject.AllowConveyerItems = true;
                 SyncAnimation(ConveyerObject);
                 return;
             case "Miner":
@@ -420,14 +451,14 @@ public class GridPlacement : MonoBehaviour
         {
             if (Mineral.Gridpos == Miner.Gridpos)
             {
-                if (Conveyer.conveyerItems.Count < 1)
+                if (Conveyer.ConveyerItems.Count < 1)
                 {
                     var Fuel = Mineral.Mineral.Fuel.ObjectPrefab;
                     var ConveyerItem = new ConveyerItem();
                     ConveyerItem.Fuel = Mineral.Mineral.Fuel;
                     ConveyerItem.ObjectPrefab = Instantiate(Fuel, GridClamp(Conveyer.Object.transform.position), Quaternion.identity);
                     ConveyerItem.ObjectID = ReturnID();
-                    Conveyer.conveyerItems.Add(ConveyerItem.ObjectID, ConveyerItem);
+                    Conveyer.ConveyerItems.Add(ConveyerItem.ObjectID, ConveyerItem);
                 }
             }
         }
