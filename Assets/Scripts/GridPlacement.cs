@@ -1,12 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Unity.PlasticSCM.Editor.WebApi;
-using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Object = System.Object;
-using Random = System.Random;
 using DG.Tweening;
 
 public class GridPlacement : MonoBehaviour

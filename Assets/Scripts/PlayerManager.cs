@@ -64,12 +64,11 @@ public class PlayerManager : MonoBehaviour
         {
             if (CurrentFuel < MinimumScore)
             {
-                print("SCORE NOT PASSED");
                 GameManager.instance.EndGame();
             }
         }
         
-        UIhandler.UpdateScoreUI(CurrentTimeLeft, CurrentFuel);
+        UIhandler.UpdateScoreUI(CurrentTimeLeft, CurrentFuel, MinimumScore);
         
     }
     

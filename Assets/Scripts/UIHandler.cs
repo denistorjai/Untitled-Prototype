@@ -53,10 +53,10 @@ public class UIHandler : MonoBehaviour
         manager.ItemPlacingPreview(item);
     }
 
-    public void UpdateScoreUI(float Time, float Score)
+    public void UpdateScoreUI(float Time, float Score, float Scoregoal)
     {
-        TimeLeft.text = Time.ToString();
-        FuelText.text = Score.ToString();
+        TimeLeft.text = $"{Mathf.RoundToInt(Time)}";
+        FuelText.text = $"{Score} / {Scoregoal}";
     }
     
 }
