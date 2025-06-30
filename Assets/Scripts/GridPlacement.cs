@@ -75,7 +75,7 @@ public class GridPlacement : MonoBehaviour
     }
     
     public void removePreview() {
-        PreviewGhost.DeleteObject();
+        Destroy(PreviewGhost.Object);
         PreviewGhost = null;
     }
 

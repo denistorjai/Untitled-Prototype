@@ -13,6 +13,7 @@ public class UIHandler : MonoBehaviour
     public GameObject ButtonPrefab;
     public TMP_Text FuelText;
     public TMP_Text TimeLeft;
+    public GameObject ToolTipText;
 
     // Data
     
@@ -57,6 +58,18 @@ public class UIHandler : MonoBehaviour
     {
         TimeLeft.text = $"{Mathf.RoundToInt(Time)}";
         FuelText.text = $"{Score} / {Scoregoal}";
+    }
+
+    public void ToggleToopTip(bool CurrentlyPlacing)
+    {
+        if (CurrentlyPlacing == true)
+        {
+            ToolTipText.SetActive(true);
+        }
+        else
+        {
+            ToolTipText.SetActive(false);
+        }
     }
     
 }

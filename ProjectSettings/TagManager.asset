@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Fuel
+  - UI
   layers:
   - Default
   - TransparentFX

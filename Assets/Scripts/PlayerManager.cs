@@ -1,8 +1,6 @@
-using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.LowLevel;
-using UnityEngine.UIElements;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -31,6 +29,7 @@ public class PlayerManager : MonoBehaviour
             gridPlacement.setPreview(item);
         }
         CurrentlyPlacing = true;
+        UIhandler.ToggleToopTip(CurrentlyPlacing);
     }
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -48,13 +47,29 @@ public class PlayerManager : MonoBehaviour
         {
             if (Mouse.current.leftButton.isPressed)
             {
-                gridPlacement.PlaceObject();
+                if (EventSystem.current.currentSelectedGameObject)
+                {
+                    if (EventSystem.current.currentSelectedGameObject.CompareTag("UI"))
+                    {
+                        gridPlacement.PlaceObject();
+                    }
+                }
+                else
+                {
+                    gridPlacement.PlaceObject();
+                }
             }
-
             if (Keyboard.current.rKey.wasPressedThisFrame)
             {
                 gridPlacement.rotatePreview();
             }
+            if (Keyboard.current.cKey.wasPressedThisFrame)
+            {
+                gridPlacement.removePreview();
+                CurrentlyPlacing = false;
+                UIhandler.ToggleToopTip(CurrentlyPlacing);
+            }
+
         }
         
         // Round Timer
