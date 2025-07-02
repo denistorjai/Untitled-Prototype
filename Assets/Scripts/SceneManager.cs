@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     // Scenes
     const string GameScene = "Game";
     const string Menu = "Menu";
+    const string Upgrade = "UpgradeScene";
     
     private void Start()
     {
@@ -27,14 +28,22 @@ public class GameManager : MonoBehaviour
 
     public void EndGame()
     {
-        print("LOADING MENU");
         UnityEngine.SceneManagement.SceneManager.LoadScene(Menu);
     }
     
     public void StartGame()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(GameScene);
+        if (PlayerManager.Instance)
+        {
+            PlayerManager.Instance.StartGame();
+        }
     }
     
+    public void NextRound()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(Upgrade);
+        PlayerManager.Instance.SetUpgrades();
+    }
     
 }

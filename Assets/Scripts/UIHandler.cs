@@ -6,9 +6,10 @@ using UnityEngine.UI;
 public class UIHandler : MonoBehaviour
 {
 
+    public static UIHandler Instance;
+    
     // Variables
     
-    public PlayerManager manager;
     public GameObject UIContainer;
     public GameObject ButtonPrefab;
     public TMP_Text FuelText;
@@ -17,23 +18,21 @@ public class UIHandler : MonoBehaviour
 
     // Data
     
-    List<ItemClass> items;
-    public Sprite[] sprites;
-    public GameObject[] prefabs;
-    
     // Methods Handling
 
     void Start()
     {
-        items = new List<ItemClass>()
+        if (Instance == null)
         {
-            new ItemClass(prefabs[0], "Conveyer", "Conveyer", sprites[0], true),
-            new ItemClass(prefabs[1], "Miner", "Miner", sprites[1], true)
-        };
-        CreateUIButtons();
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
-    void CreateUIButtons()
+    void CreateUIButtons(List<ItemClass> items )
     {
         foreach (ItemClass item in items)
         {
@@ -49,9 +48,14 @@ public class UIHandler : MonoBehaviour
         }
     }
 
+    public void StartRound(List<ItemClass> items)
+    {
+        CreateUIButtons(items);
+    }
+    
     void ButtonClicked(ItemClass item)
     {
-        manager.ItemPlacingPreview(item);
+        PlayerManager.Instance.ItemPlacingPreview(item);
     }
 
     public void UpdateScoreUI(float Time, float Score, float Scoregoal)

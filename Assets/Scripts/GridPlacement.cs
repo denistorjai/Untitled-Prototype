@@ -8,6 +8,8 @@ using DG.Tweening;
 public class GridPlacement : MonoBehaviour
 {
     
+    public static GridPlacement Instance;
+    
     // Data
     
     Dictionary<string, ObjectClass> Objects = new Dictionary<string, ObjectClass>();
@@ -114,8 +116,34 @@ public class GridPlacement : MonoBehaviour
 
     private void Start()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+        
+        // Add Space Ship
+        SpaceShip Spaceship = new SpaceShip();
+        Spaceship.Object = SpaceshipPrefab;
+        Spaceship.ObjectID = ReturnID();
+        Spaceship.Gridpos = new Vector2Int(0, 0);
+        Spaceship.ActiveObject = true;
+        Spaceship.AllowConveyerItems = true;
+        Spaceship.AllowedConveyerItems = 100000000;
+        Spaceship.ObjectType = "SpaceShip";
+        Objects.Add(Spaceship.ObjectID, Spaceship);
+
+    }
+    
+    private float Cooldown;
+
+    public void StartRound()
+    {
         // Get Minerals
-        Dictionary<string, MineralClass> Minerals = MinerManager.GetMinerals();
+        Dictionary<string, MineralClass> Minerals = MinerManager.Instance.GetMinerals();
         foreach (var Item in Minerals.Values)
         {
             ObjectMineralClass MineralObject = new ObjectMineralClass();
@@ -133,22 +161,7 @@ public class GridPlacement : MonoBehaviour
             Objects.Add(MineralObject.ObjectID, MineralObject);
             ObjectMinerals.Add(MineralObject.ObjectID, MineralObject);
         }
-        
-        // Add Space Ship
-        SpaceShip Spaceship = new SpaceShip();
-        Spaceship.Object = SpaceshipPrefab;
-        Spaceship.ObjectID = ReturnID();
-        Spaceship.Gridpos = new Vector2Int(0, 0);
-        Spaceship.ActiveObject = true;
-        Spaceship.AllowConveyerItems = true;
-        Spaceship.AllowedConveyerItems = 100000000;
-        Spaceship.ObjectType = "SpaceShip";
-        Objects.Add(Spaceship.ObjectID, Spaceship);
-
     }
-
-    // TO DO TOMORROW: ADD A LIST OF CONVEYERABLE CLASSES, CONVERT TO CONVEYERITERM CLASS, MAKE SPAWNER, USE VECTOR2 TO DIRECTIOn, VECTORINT FOR GRID POS, MOVE ITEM TO NEXT GRIDPOS, AND KEEP DOING THAT BASED ON CONVEYERPOSITION
-    private float Cooldown;
     
     void Update() 
     {
@@ -156,7 +169,10 @@ public class GridPlacement : MonoBehaviour
         {
             var MousePos = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
             MousePos.z = 0;
-            PreviewGhost.Object.transform.position = GridClamp(MousePos);
+            if (MousePos.x > -18 && MousePos.x < 18 && MousePos.y > -18 && MousePos.y < 18)
+            {
+                PreviewGhost.Object.transform.position = GridClamp(MousePos);
+            }
         }
         
         // Object & Spawning Management
@@ -203,7 +219,7 @@ public class GridPlacement : MonoBehaviour
                                         {
                                             case "SpaceShip":
                                                 Destroy(Item.ObjectPrefab);
-                                                PlayerManager.AddFuel(Item.Fuel.FuelAmount);
+                                                PlayerManager.Instance.AddFuel(Item.Fuel.FuelAmount);
                                                 ComparingObject.ConveyerItems.Remove(Item.ObjectID);
                                                 DeleteClass(Item);
                                                 return;
