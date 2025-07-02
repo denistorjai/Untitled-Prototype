@@ -40,10 +40,11 @@ public class GameManager : MonoBehaviour
         }
     }
     
+    
+    
     public void NextRound()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(Upgrade);
-        PlayerManager.Instance.SetUpgrades();
     }
     
 }

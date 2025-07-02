@@ -6,21 +6,23 @@ using UnityEngine.UI;
 public class UpgradeUIhandler : MonoBehaviour
 {
     
-    public static UpgradeUIhandler instance;
+    public static UpgradeUIhandler Instance;
+    
     public GameObject prefab;
     public GameObject UIContainer;
     public TMP_Text RoundText;
     
     void Start()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
         }
         else
         {
             Destroy(this.gameObject);
         }
+        PlayerManager.Instance.SetUpgrades();
     }
 
     public void SetUpgrades(List<ItemClass> upgrades)
@@ -28,14 +30,14 @@ public class UpgradeUIhandler : MonoBehaviour
         foreach (ItemClass upgrade in upgrades)
         {
             GameObject upgradeUI = Instantiate(prefab, UIContainer.transform);
-            // Button upgradeButton = upgradeUI.GetComponent<Button>();
-            // upgradeButton.onClick.AddListener(() => SelectedUpgrade(upgrade));
+            Button buttonobject = upgradeUI.GetComponent<Button>();
+            buttonobject.onClick.AddListener(() => SelectedUpgrade(upgrade));
         }
     }
 
     public void SelectedUpgrade(ItemClass upgrade)
     {
-        
+        print("Add Upgrade and Start Next Round");
     }
     
     // Update is called once per frame

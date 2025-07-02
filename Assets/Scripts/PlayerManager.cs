@@ -22,6 +22,7 @@ public class PlayerManager : MonoBehaviour
     private float MinimumScore = 50;
     private bool RoundActive = false;
     public float MouseSens = 0.03f;
+    private bool InUpgradeProgress = false;
     
     private static Vector3 ClampMax = new Vector3(13, 13, -1);
     private static Vector3 ClampMin = new Vector3(-13, -13, -1);
@@ -193,13 +194,10 @@ public class PlayerManager : MonoBehaviour
         {
             upgrades.Add(availableupgrades[UnityEngine.Random.Range(0, availableupgrades.Count)]);
         }
-
-        while (UpgradeUIhandler.instance == null)
-        {
-            print("DOESNT EXIST");
-        }
+        
+        UpgradeUIhandler.Instance.SetUpgrades(upgrades);
     }
-    
+
     public void RoundStart()
     {
         CurrentTimeLeft = StartTime;
