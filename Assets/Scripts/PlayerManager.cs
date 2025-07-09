@@ -68,8 +68,8 @@ public class PlayerManager : MonoBehaviour
         // Starting Items
         items = new List<ItemClass>()
         {
-            new ItemClass(prefabs[0], "Conveyer", "Conveyer", sprites[0], true),
-            new ItemClass(prefabs[1], "Miner", "Miner", sprites[1], true)
+            new ItemClass(prefabs[0], "Conveyer", "Conveyer", sprites[0], true, "Conveyer Belt", "Basic Conveyer Belt"),
+            new ItemClass(prefabs[1], "Miner", "Miner", sprites[1], true, "Mineral Miner", "Basic Mineral Miner")
         };
         
         RoundStart();
@@ -79,9 +79,9 @@ public class PlayerManager : MonoBehaviour
         // Common Upgrades
         availableupgrades = new List<ItemClass>()
         {
-            new ItemClass(prefabs[1], "Miner", "Miner1", sprites[1], true),
-            new ItemClass(prefabs[1], "Miner", "Miner2", sprites[1], true),
-            new ItemClass(prefabs[1], "Miner", "Miner3", sprites[1], true)
+            new ItemClass(prefabs[1], "Miner", "Miner", sprites[1], true, "A newly engineered miner that lets you mine minerals at 25% increased speed", "Miner Upgrade+"),
+            new ItemClass(prefabs[0], "Conveyer", "Conveyer", sprites[0], true, "A basic conveyer belt that was overclocked to allow for faster transporation of items", "Conveyer Upgrade+"),
+            new ItemClass(prefabs[1], "Miner", "Refiner", sprites[1], true, "An rich mineral processor that allows ore to be refined for more value", "Ore Refinement+")
         };
 
     }
@@ -173,10 +173,9 @@ public class PlayerManager : MonoBehaviour
     
             if (CurrentFuel >= MinimumScore)
             {
-                GameManager.instance.NextRound();
+                CurrentlyPlacing = false;
                 RoundActive = false;
-                MinimumScore = MinimumScore * RoundMultiplier;
-                StartTime = StartTime * RoundMultiplier;
+                GameManager.instance.NextRound();
             }
         
             UIHandler.Instance.UpdateScoreUI(CurrentTimeLeft, CurrentFuel, MinimumScore);
@@ -188,16 +187,24 @@ public class PlayerManager : MonoBehaviour
     {
         // Items to Send
         List<ItemClass> upgrades = new List<ItemClass>();
-
-        float LoopTimes = 3;
-        for (int i = 0; i < LoopTimes; i++)
+        
+        while (upgrades.Count < 3)
         {
-            upgrades.Add(availableupgrades[UnityEngine.Random.Range(0, availableupgrades.Count)]);
+            var Upgrade = availableupgrades[UnityEngine.Random.Range(0, availableupgrades.Count)];
+            if (upgrades.Contains(Upgrade) == false)
+            {
+                upgrades.Add(Upgrade);
+            }
         }
         
-        UpgradeUIhandler.Instance.SetUpgrades(upgrades);
+        UpgradeUIhandler.Instance.SetUpgrades(upgrades, RoundMultiplier);
     }
 
+    public void AllowUpgrades(ItemClass upgrade)
+    {
+        items.Add(upgrade);
+    }
+    
     public void RoundStart()
     {
         CurrentTimeLeft = StartTime;
@@ -207,7 +214,7 @@ public class PlayerManager : MonoBehaviour
         UIHandler.Instance.StartRound(items);
         RoundActive = true;
     }
-
+    
     public void StartGame()
     {
         RoundMultiplier = 1;
@@ -220,6 +227,14 @@ public class PlayerManager : MonoBehaviour
         CurrentlyPlacing = false;
         RoundActive = false;
         GameManager.instance.EndGame();
+    }
+
+    public void StartNextRound()
+    {
+        RoundMultiplier = RoundMultiplier + 1;
+        MinimumScore = MinimumScore * RoundMultiplier;
+        StartTime = StartTime * RoundMultiplier;
+        GameManager.instance.StartNextRound();
     }
     
     // Methods

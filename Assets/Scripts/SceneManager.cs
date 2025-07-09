@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -39,12 +40,26 @@ public class GameManager : MonoBehaviour
             PlayerManager.Instance.StartGame();
         }
     }
-    
-    
+
+    public void StartNextRound()
+    {
+        StartCoroutine(LoadNextRound());
+    }
     
     public void NextRound()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(Upgrade);
+    }
+
+    IEnumerator LoadNextRound()
+    {
+        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(GameScene);
+        while (!asyncOperation.isDone)
+        {
+            yield return null;
+        }
+        yield return null;
+        PlayerManager.Instance.RoundStart();
     }
     
 }

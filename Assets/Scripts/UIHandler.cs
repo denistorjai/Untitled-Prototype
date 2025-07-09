@@ -34,6 +34,10 @@ public class UIHandler : MonoBehaviour
 
     void CreateUIButtons(List<ItemClass> items )
     {
+        foreach (Transform item in UIContainer.transform)
+        {
+            Destroy(item.gameObject);
+        }
         foreach (ItemClass item in items)
         {
             if (item.Unlocked)

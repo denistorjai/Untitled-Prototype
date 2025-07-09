@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UpgradeUIhandler : MonoBehaviour
@@ -25,19 +26,30 @@ public class UpgradeUIhandler : MonoBehaviour
         PlayerManager.Instance.SetUpgrades();
     }
 
-    public void SetUpgrades(List<ItemClass> upgrades)
+    public void SetUpgrades(List<ItemClass> upgrades, float round)
     {
+        RoundText.text = $"You've made it to Round {round}!";
         foreach (ItemClass upgrade in upgrades)
         {
             GameObject upgradeUI = Instantiate(prefab, UIContainer.transform);
             Button buttonobject = upgradeUI.GetComponent<Button>();
-            buttonobject.onClick.AddListener(() => SelectedUpgrade(upgrade));
+            Transform Item = upgradeUI.transform.Find("Item");
+            Transform UpgradeName = upgradeUI.transform.Find("UpgradeName");
+            Transform ItemDescription = upgradeUI.transform.Find("ItemDescription");
+            
+            Item.GetComponent<Image>().sprite = upgrade.ItemIcon;
+            UpgradeName.GetComponent<TMP_Text>().text = upgrade.ItemUpgradeName;
+            ItemDescription.GetComponent<TMP_Text>().text = upgrade.ItemDescription;
+            
+            ItemClass CapturedUpgrade = upgrade;
+            buttonobject.onClick.AddListener(() => SelectedUpgrade(CapturedUpgrade));
         }
     }
-
+    
     public void SelectedUpgrade(ItemClass upgrade)
     {
-        print("Add Upgrade and Start Next Round");
+        PlayerManager.Instance.AllowUpgrades(upgrade);
+        PlayerManager.Instance.StartNextRound();
     }
     
     // Update is called once per frame
