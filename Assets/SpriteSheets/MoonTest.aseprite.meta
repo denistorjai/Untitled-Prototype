@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 210d816c794ee7a4f95625663a673ed1
+guid: e65eb759ab2785c4dbdfc8fc9ef63445
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -102,7 +102,7 @@ ScriptedImporter:
     generateIndividualEvents: 1
     generateSpriteAtlas: 1
   importFileNodeState: 1
-  platformSettingsDirtyTick: 638866279541145678
+  platformSettingsDirtyTick: 638892254223974845
   textureAssetName: 
   singleSpriteImportData:
   - name: 
@@ -127,7 +127,7 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
   animatedSpriteImportData:
-  - name: Rocket
+  - name: MoonTest
     originalName: 
     pivot: {x: 0.5, y: 0.5}
     alignment: 0
@@ -137,9 +137,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 32
-      height: 32
-    spriteID: 7a91dbea01d9e3149adf3338d6ab8c4b
+      width: 30
+      height: 30
+    spriteID: b79095de0d0a17d4da65051200c7c1dd
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -153,25 +153,25 @@ ScriptedImporter:
   asepriteLayers:
   - layerIndex: 0
     uuid:
-      value0: 3021298170
+      value0: 1554988009
       value1: 0
       value2: 0
       value3: 0
     guid: 0
-    name: Rocket
+    name: MoonTest
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: Rocket
+    - name: MoonTest
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 0
-        y: 0
-        width: 32
-        height: 32
-      spriteId: 7a91dbea01d9e3149adf3338d6ab8c4b
+        x: 1
+        y: 1
+        width: 30
+        height: 30
+      spriteId: b79095de0d0a17d4da65051200c7c1dd
     linkedCells: []
     tileCells: []
     tileSetIndex: 0
