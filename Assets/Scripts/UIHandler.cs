@@ -15,6 +15,8 @@ public class UIHandler : MonoBehaviour
     public TMP_Text FuelText;
     public TMP_Text TimeLeft;
     public GameObject ToolTipText;
+    public AudioSource audioSource;
+    public AudioClip ToggleSound;
 
     // Data
     
@@ -60,6 +62,8 @@ public class UIHandler : MonoBehaviour
     void ButtonClicked(ItemClass item)
     {
         PlayerManager.Instance.ItemPlacingPreview(item);
+        audioSource.pitch = Random.Range(0.9f, 1.1f);
+        audioSource.PlayOneShot(ToggleSound);
     }
 
     public void UpdateScoreUI(float Time, float Score, float Scoregoal)

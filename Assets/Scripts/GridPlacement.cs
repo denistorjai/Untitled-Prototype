@@ -4,6 +4,8 @@ using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using DG.Tweening;
+using UnityEditor;
+using Random = UnityEngine.Random;
 
 public class GridPlacement : MonoBehaviour
 {
@@ -26,6 +28,8 @@ public class GridPlacement : MonoBehaviour
     public MinerManager MinerManager;
     public PlayerManager PlayerManager;
     public GameObject SpaceshipPrefab;
+    public AudioSource audioSource;
+    public AudioClip placesound;
     
     private Vector2Int[] directions =
     {
@@ -212,21 +216,7 @@ public class GridPlacement : MonoBehaviour
                                 Item.CurrentTween = Item.ObjectPrefab.transform
                                     .DOMove(GridClamp(ComparingObject.Object.transform.position), 0.4f).SetEase(Ease.Linear).OnComplete(() =>
                                     {
-                                        ComparingObject.ConveyerItems.Add(Item.ObjectID, Item);
-                                        Conveyer.ConveyerItems.Remove(Item.ObjectID);
-
-                                        switch (ComparingObject.ObjectType)
-                                        {
-                                            case "SpaceShip":
-                                                Destroy(Item.ObjectPrefab);
-                                                PlayerManager.Instance.AddFuel(Item.Fuel.FuelAmount);
-                                                ComparingObject.ConveyerItems.Remove(Item.ObjectID);
-                                                DeleteClass(Item);
-                                                return;
-                                            default:
-                                                return;
-                                        }
-                                        
+                                        ObjectFunction(Conveyer, ComparingObject, Item);
                                     });
                             }
                         }
@@ -237,6 +227,25 @@ public class GridPlacement : MonoBehaviour
         
     }
 
+    public void ObjectFunction(ObjectClass Object, ObjectClass ComparingObject, ConveyerItem Item)
+    {
+        ComparingObject.ConveyerItems.Add(Item.ObjectID, Item);
+        Object.ConveyerItems.Remove(Item.ObjectID);
+        
+        switch (ComparingObject.ObjectType)
+        {
+            case "SpaceShip":
+                Destroy(Item.ObjectPrefab);
+                PlayerManager.Instance.AddFuel(Item.Fuel.FuelAmount);
+                ComparingObject.ConveyerItems.Remove(Item.ObjectID);
+                DeleteClass(Item);
+                return;
+            default:
+                return;
+        }
+        
+    }
+        
     public void DeleteClass(ConveyerItem item)
     {
         item = null;
@@ -283,7 +292,7 @@ public class GridPlacement : MonoBehaviour
                     }
                 }
         }
-        
+            
         if (BlockPlace) {
             return;
         }
@@ -291,6 +300,9 @@ public class GridPlacement : MonoBehaviour
         if (!AllowMiner && PreviewGhost.ObjectItem.ItemType == "Miner") {
             return;
         }
+        
+        audioSource.pitch = Random.Range(0.9f, 1.1f);
+        audioSource.PlayOneShot(placesound);
         
         switch (PreviewGhost.ObjectItem.ItemName)
         {
@@ -339,6 +351,7 @@ public class GridPlacement : MonoBehaviour
                 Object.Gridpos = GridPos;
                 return;
         }
+        
     }
     
     // Use Methods
@@ -409,10 +422,12 @@ public class GridPlacement : MonoBehaviour
     {
         ConveyerToRotate.Object.transform.rotation = Quaternion.identity;
         var SpriteRenderer = Conveyer.Object.GetComponent<SpriteRenderer>();
-        SpriteRenderer.flipY = false;
-        SpriteRenderer.flipX = false;
         var animator = ConveyerToRotate.Object.GetComponent<Animator>();
         // Rotation Directions
+        print("Conveyer to Routate Output Direction");
+        print(ConveyerToRotate.OutputDirection);
+        print("Conveyer Output Direction");
+        print(Conveyer.OutputDirection);
         switch (getDirection(ConveyerToRotate.OutputDirection))
         {
             case ConveyerDirection.Up:
@@ -428,13 +443,24 @@ public class GridPlacement : MonoBehaviour
                 {
                     animator.runtimeAnimatorController = ConveyerAnimationControllers[4];
                     ConveyerToRotate.Object.transform.Rotate(0,0,270f);
+                    if (Conveyer.OutputDirection == Vector2Int.left) {
+                        animator.runtimeAnimatorController = ConveyerAnimationControllers[6];
+                        SyncAnimation(ConveyerToRotate);
+                    }
                 }
                 return;
             case ConveyerDirection.Left:
+                SpriteRenderer.flipY = false;
                 animator.runtimeAnimatorController = ConveyerAnimationControllers[0];
                 if (Direction == Vector2Int.up)
                 {
                     animator.runtimeAnimatorController = ConveyerAnimationControllers[5];
+                    if (Conveyer.OutputDirection == Vector2Int.up)
+                    {
+                        animator.runtimeAnimatorController = ConveyerAnimationControllers[6];
+                        ConveyerToRotate.Object.transform.Rotate(0,0,180f);
+                        SyncAnimation(ConveyerToRotate);
+                    }
                 }
                 return;
             case ConveyerDirection.Right:
