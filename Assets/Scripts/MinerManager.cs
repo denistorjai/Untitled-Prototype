@@ -51,7 +51,7 @@ public class MinerManager : MonoBehaviour
             // X & Y Randomization
             float XPosition = UnityEngine.Random.Range(-15, 15);
             float YPosition = UnityEngine.Random.Range(-15, 15);
-            while (XPosition == 0 && YPosition == 0 || XPosition == 0 || YPosition == 0)
+            while (XPosition < 5 && XPosition > -5 || YPosition < 5 && YPosition > -5 || XPosition < 5 && XPosition > -5 && YPosition < 5 && YPosition > -5)
             {
                 XPosition = UnityEngine.Random.Range(-15, 15);
                 YPosition = UnityEngine.Random.Range(-15, 15);

@@ -802,6 +802,8 @@ MonoBehaviour:
   SpaceshipPrefab: {fileID: 183092139}
   audioSource: {fileID: 1008937386}
   placesound: {fileID: 8300000, guid: c1b3daab2718e9e469f04267258f3c86, type: 3}
+  OutputIndicator: {fileID: 6198816651351142118, guid: 1aa4dac3a44737842b83c9d1eaaf7277, type: 3}
+  ActiveIndicator: {fileID: 0}
 --- !u!4 &859704979
 Transform:
   m_ObjectHideFlags: 0

@@ -1,11 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using DG.Tweening;
 using UnityEditor;
+using Object = UnityEngine.Object;
+using Quaternion = UnityEngine.Quaternion;
 using Random = UnityEngine.Random;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 public class GridPlacement : MonoBehaviour
 {
@@ -30,6 +35,9 @@ public class GridPlacement : MonoBehaviour
     public GameObject SpaceshipPrefab;
     public AudioSource audioSource;
     public AudioClip placesound;
+    public GameObject OutputIndicator;
+
+    public GameObject ActiveIndicator;
     
     private Vector2Int[] directions =
     {
@@ -41,7 +49,8 @@ public class GridPlacement : MonoBehaviour
     private ObjectClass PreviewGhost;
     private SpriteRenderer PreviewGhostRenderer;
     
-    public void setPreview(ItemClass item) {
+    public void setPreview(ItemClass item)
+    {
         switch (item.ItemType)
         {
             case "Conveyer":
@@ -51,7 +60,6 @@ public class GridPlacement : MonoBehaviour
                 ConveyerObject.ObjectID = ReturnID();
                 ConveyerObject.Object.name = "PreviewObject";
                 ConveyerObject.ObjectSize = ConveyerObject.Object.GetComponent<SpriteRenderer>().bounds.size;
-                print(ConveyerObject.ObjectSize);
                 PreviewGhost = ConveyerObject;
                 PreviewGhostRenderer = ConveyerObject.Object.GetComponent<SpriteRenderer>();
                 SyncAnimation(ConveyerObject);
@@ -87,37 +95,60 @@ public class GridPlacement : MonoBehaviour
 
     public void rotatePreview()
     {
-        PreviewGhost.Object.transform.Rotate(0,0,90f);
-        PreviewGhostRenderer.flipY = false;
-        PreviewGhostRenderer.flipX = false;
-        float zRot = PreviewGhost.Object.transform.eulerAngles.z;
-        if (Mathf.Approximately(zRot, 180f))
+        Vector2 DesiredRotation = Vector2.left;
+        if (PreviewGhost.OutputDirection == Vector2.left)
         {
-            PreviewGhostRenderer.flipY = true;
+            DesiredRotation = Vector2.down;
         }
-        switch (PreviewGhost.ObjectItem.ItemType)
+        if (PreviewGhost.OutputDirection == Vector2.down)
+        {
+            DesiredRotation = Vector2.right;
+        }
+        if (PreviewGhost.OutputDirection == Vector2.right)
+        {
+            DesiredRotation = Vector2.up;
+        }
+
+        if (PreviewGhost.OutputDirection == Vector2.up)
+        {
+            DesiredRotation = Vector2.left;
+        }
+        RotateToDesired(DesiredRotation, PreviewGhost);
+    }
+
+    public void RotateToDesired(Vector2 DesiredRotation, ObjectClass ObjectToRotate)
+    {
+        // Output Direction
+        ObjectToRotate.OutputDirection = DesiredRotation;
+        // Visuals
+        ObjectToRotate.Object.GetComponent<SpriteRenderer>().flipY = false;
+        ObjectToRotate.Object.GetComponent<SpriteRenderer>().flipX = false;
+        switch (ObjectToRotate.ObjectItem.ItemType)
         {
             case "Conveyer":
-                if (Mathf.Approximately(zRot, 180f))
+                if (ObjectToRotate.OutputDirection == Vector2.left)
                 {
-                    PreviewGhost.OutputDirection = Vector2.left;
+                    ObjectToRotate.Object.transform.rotation = Quaternion.Euler(0f, 0f, 180f);
+                    ObjectToRotate.Object.GetComponent<SpriteRenderer>().flipY = true;
                 }
-                if (Mathf.Approximately(zRot, 90f))
+                if (ObjectToRotate.OutputDirection == Vector2.down)
                 {
-                    PreviewGhost.OutputDirection = Vector2.up;
+                    ObjectToRotate.Object.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+                    ObjectToRotate.Object.GetComponent<SpriteRenderer>().flipY = true;
+                    ObjectToRotate.Object.GetComponent<SpriteRenderer>().flipX = true;
                 }
-                if (Mathf.Approximately(zRot, 0f))
+                if (ObjectToRotate.OutputDirection == Vector2.right)
                 {
-                    PreviewGhost.OutputDirection = Vector2.right;
+                    ObjectToRotate.Object.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
                 }
-                if (Mathf.Approximately(zRot, 270))
+                if (ObjectToRotate.OutputDirection == Vector2.up)
                 {
-                    PreviewGhost.OutputDirection = Vector2.down;
+                    ObjectToRotate.Object.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
                 }
                 return;
         }
     }
-
+    
     private void Start()
     {
         if (Instance == null)
@@ -177,6 +208,41 @@ public class GridPlacement : MonoBehaviour
             {
                 PreviewGhost.Object.transform.position = GridClamp(MousePos);
             }
+            
+            // Output Indicator
+            if (ActiveIndicator == null)
+            {
+                ActiveIndicator = Instantiate(OutputIndicator);
+                ActiveIndicator.transform.position = PreviewGhost.Object.transform.position;
+            }
+            else
+            {
+                // Calculate Offset and Direction
+                Vector3 Offset = Vector3.zero;
+                ActiveIndicator.GetComponent<SpriteRenderer>().flipY = false;
+                if (PreviewGhost.OutputDirection == Vector2.left)
+                {
+                    Offset = new Vector3(-0.9f,0,0);
+                    ActiveIndicator.transform.rotation = Quaternion.Euler(0,0,90);
+                }
+                if (PreviewGhost.OutputDirection == Vector2.right)
+                {
+                    Offset = new Vector3(0.9f,0,0);
+                    ActiveIndicator.transform.rotation = Quaternion.Euler(0,0,270);
+                }
+                if (PreviewGhost.OutputDirection == Vector2.up)
+                {
+                    Offset = new Vector3(0,0.9f,0);
+                    ActiveIndicator.transform.rotation = Quaternion.Euler(0,0,0);
+                }
+                if (PreviewGhost.OutputDirection == Vector2.down)
+                {
+                    Offset = new Vector3(0,-0.9f,0);
+                    ActiveIndicator.transform.rotation = Quaternion.Euler(0,0,180);
+                }
+                ActiveIndicator.transform.position = PreviewGhost.Object.transform.position + Offset;
+            }
+            
         }
         
         // Object & Spawning Management
@@ -187,10 +253,10 @@ public class GridPlacement : MonoBehaviour
         {
             foreach (MinerClass Miner in Miners.Values)
             {
-                var RightNeighborTile = Miner.Gridpos + Vector2.right;
+                var OutputPos = Miner.Gridpos + Miner.OutputDirection;
                 foreach (ConveyerClass Conveyer in Conveyers.Values)
                 {
-                    if (Conveyer.Gridpos == RightNeighborTile)
+                    if (Conveyer.Gridpos == OutputPos)
                     {
                         SpawnFuel(Miner, Conveyer);
                     }
@@ -256,6 +322,7 @@ public class GridPlacement : MonoBehaviour
     // ReSharper disable Unity.PerformanceAnalysis
     public void PlaceObject()
     {
+        
         var BlockPlace = false;
         var AllowMiner = false;
         
@@ -309,6 +376,7 @@ public class GridPlacement : MonoBehaviour
             case "Conveyer":
                 ConveyerClass ConveyerObject = new ConveyerClass();
                 ConveyerObject.Object = Instantiate(PreviewGhost.Object, PreviewGhost.Object.transform.position, PreviewGhost.Object.transform.rotation);
+                ConveyerObject.ObjectItem = PreviewGhost.ObjectItem;
                 ConveyerObject.ObjectID = ReturnID();
                 ConveyerObject.Object.name = PreviewGhost.ObjectItem.ItemName;
                 Objects.Add(ConveyerObject.ObjectID, ConveyerObject);
@@ -329,6 +397,7 @@ public class GridPlacement : MonoBehaviour
                 MinerObject.Object = Instantiate(PreviewGhost.Object, PreviewGhost.Object.transform.position, PreviewGhost.Object.transform.rotation);
                 MinerObject.ObjectID = ReturnID();
                 MinerObject.Object.name = PreviewGhost.ObjectItem.ItemName;
+                MinerObject.OutputDirection = PreviewGhost.OutputDirection;
                 Objects.Add(MinerObject.ObjectID, MinerObject);
                 Miners.Add(MinerObject.ObjectID, MinerObject);
                 Vector2Int MinerGridPos = new Vector2Int(
@@ -424,10 +493,10 @@ public class GridPlacement : MonoBehaviour
         var SpriteRenderer = Conveyer.Object.GetComponent<SpriteRenderer>();
         var animator = ConveyerToRotate.Object.GetComponent<Animator>();
         // Rotation Directions
-        print("Conveyer to Routate Output Direction");
-        print(ConveyerToRotate.OutputDirection);
-        print("Conveyer Output Direction");
-        print(Conveyer.OutputDirection);
+        //print("ConveyerToRotate Output Direction");
+        //print(ConveyerToRotate.OutputDirection);
+        //print("Comparing Conveyer Output Direction");
+        //print(Conveyer.OutputDirection);
         switch (getDirection(ConveyerToRotate.OutputDirection))
         {
             case ConveyerDirection.Up:
@@ -435,6 +504,18 @@ public class GridPlacement : MonoBehaviour
                 if (Direction == Vector2Int.right)
                 {
                     animator.runtimeAnimatorController = ConveyerAnimationControllers[3];
+                    if (Conveyer.OutputDirection == Vector2Int.right)
+                    {
+                        animator.runtimeAnimatorController = ConveyerAnimationControllers[6];
+                        ConveyerToRotate.Object.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+                        SyncAnimation(ConveyerToRotate);
+                    }
+                }
+                if (Conveyer.OutputDirection == Vector2Int.left)
+                {
+                    animator.runtimeAnimatorController = ConveyerAnimationControllers[6];
+                    ConveyerToRotate.Object.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+                    SyncAnimation(ConveyerToRotate);
                 }
                 return;
             case ConveyerDirection.Down:
@@ -447,6 +528,12 @@ public class GridPlacement : MonoBehaviour
                         animator.runtimeAnimatorController = ConveyerAnimationControllers[6];
                         SyncAnimation(ConveyerToRotate);
                     }
+                }
+                if (Conveyer.OutputDirection == Vector2Int.right)
+                {
+                    animator.runtimeAnimatorController = ConveyerAnimationControllers[6];
+                    ConveyerToRotate.Object.transform.Rotate(0,0,270f);
+                    SyncAnimation(ConveyerToRotate);
                 }
                 return;
             case ConveyerDirection.Left:
@@ -462,16 +549,33 @@ public class GridPlacement : MonoBehaviour
                         SyncAnimation(ConveyerToRotate);
                     }
                 }
+                if (Conveyer.OutputDirection == Vector2Int.down)
+                {
+                    animator.runtimeAnimatorController = ConveyerAnimationControllers[6];
+                    ConveyerToRotate.Object.transform.Rotate(0,0,180f);
+                    SyncAnimation(ConveyerToRotate);
+                }
                 return;
             case ConveyerDirection.Right:
                 if (Direction == Vector2Int.down)
                 {
                     animator.runtimeAnimatorController = ConveyerAnimationControllers[4];
+                    if (Conveyer.OutputDirection == Vector2Int.down)
+                    {
+                        animator.runtimeAnimatorController = ConveyerAnimationControllers[6];
+                        SyncAnimation(ConveyerToRotate);
+                    }
                 }
                 else
                 {
                     animator.runtimeAnimatorController = ConveyerAnimationControllers[2];
-                    ConveyerToRotate.Object.transform.Rotate(0, 0,270);
+                    ConveyerToRotate.Object.transform.Rotate(0, 0,270f);
+                }
+                if (Conveyer.OutputDirection == Vector2Int.up)
+                {
+                    animator.runtimeAnimatorController = ConveyerAnimationControllers[6];
+                    ConveyerToRotate.Object.transform.Rotate(0,0, 90f);
+                    SyncAnimation(ConveyerToRotate);
                 }
                 return;
             default:
