@@ -501,9 +501,9 @@ public class GridPlacement : MonoBehaviour
             if (OutputDirection == Vector2.down)
             {
                 conveyerSpriteRenderer.flipX = true;
-                conveyerSpriteRenderer.flipY = false;
-                conveyerAnimator.runtimeAnimatorController = ConveyerAnimationControllers[1];
-                Conveyer.Object.transform.rotation = Quaternion.Euler(0, 0, 0);
+                conveyerSpriteRenderer.flipY = true;
+                conveyerAnimator.runtimeAnimatorController = ConveyerAnimationControllers[4];
+                Conveyer.Object.transform.rotation = Quaternion.Euler(0, 0, 90);
                 SyncAnimation(Conveyer);
             }
         }
@@ -511,22 +511,38 @@ public class GridPlacement : MonoBehaviour
         {
             if (OutputDirection == Vector2.left)
             {
-                
+                conveyerSpriteRenderer.flipX = false;
+                conveyerSpriteRenderer.flipY = false;
+                conveyerAnimator.runtimeAnimatorController = ConveyerAnimationControllers[5];
+                Conveyer.Object.transform.rotation = Quaternion.Euler(0, 0, 0);
+                SyncAnimation(Conveyer);
             }
             if (OutputDirection == Vector2.right)
             {
-                
+                conveyerSpriteRenderer.flipX = false;
+                conveyerSpriteRenderer.flipY = false;
+                conveyerAnimator.runtimeAnimatorController = ConveyerAnimationControllers[2];
+                Conveyer.Object.transform.rotation = Quaternion.Euler(0, 0, 270);
+                SyncAnimation(Conveyer);
             }
         }
         if (InputDirection == Vector2.up)
         {
             if (OutputDirection == Vector2.left)
             {
-                
+                conveyerSpriteRenderer.flipX = false;
+                conveyerSpriteRenderer.flipY = false;
+                conveyerAnimator.runtimeAnimatorController = ConveyerAnimationControllers[0];
+                Conveyer.Object.transform.rotation = Quaternion.Euler(0, 0, 0);
+                SyncAnimation(Conveyer);
             }
             if (OutputDirection == Vector2.right)
             {
-                
+                conveyerSpriteRenderer.flipX = false;
+                conveyerSpriteRenderer.flipY = false;
+                conveyerAnimator.runtimeAnimatorController = ConveyerAnimationControllers[4];
+                Conveyer.Object.transform.rotation = Quaternion.Euler(0, 0, 0);
+                SyncAnimation(Conveyer);
             }
         }
     }
