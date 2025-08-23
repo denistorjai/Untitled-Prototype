@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using DG.Tweening;
@@ -26,7 +25,7 @@ public class GridPlacement : MonoBehaviour
     
     public float gridSize;
     public Camera cam;
-    public AnimatorController[] ConveyerAnimationControllers;
+    public RuntimeAnimatorController[] ConveyerAnimationControllers;
     public MinerManager MinerManager;
     public PlayerManager PlayerManager;
     public GameObject SpaceshipPrefab;
@@ -87,6 +86,7 @@ public class GridPlacement : MonoBehaviour
     
     public void removePreview() {
         Destroy(PreviewGhost.Object);
+        RemoveActiveIndicator();
         PreviewGhost = null;
     }
 
@@ -290,6 +290,14 @@ public class GridPlacement : MonoBehaviour
         
     }
 
+    public void RemoveActiveIndicator()
+    {
+        if (ActiveIndicator != null)
+        {
+            Destroy(ActiveIndicator);
+        }
+    }
+    
     public void ObjectFunction(ObjectClass Object, ObjectClass ComparingObject, ConveyerItem Item)
     {
         ComparingObject.ConveyerItems.Add(Item.ObjectID, Item);

@@ -7,5 +7,10 @@ public class MainMenuHandler : MonoBehaviour
     {
         GameManager.instance.StartGame();
     }
+
+    public void CloseGame()
+    {
+        Application.Quit();
+    }
     
 }

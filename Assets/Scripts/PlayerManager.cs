@@ -86,6 +86,8 @@ public class PlayerManager : MonoBehaviour
 
     }
     
+    public bool MouseHeld = false;
+    
     // Update is called once per frame
     void Update()
     {
@@ -129,7 +131,7 @@ public class PlayerManager : MonoBehaviour
                 Mathf.Clamp(CameraHandler.Instance.gameObject.transform.position.x, ClampMin.x, ClampMax.x ),
                 Mathf.Clamp(CameraHandler.Instance.gameObject.transform.position.y, ClampMin.y, ClampMax.y),
                 -1
-                );
+            );
             
             CameraHandler.Instance.gameObject.transform.position = ClampedCameraPosition;
             
